@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - الأستاذ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; outline: none; }
+        
+        body {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);
+            color: #0f172a;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+        }
+
+        .dashboard-layout { display: flex; width: 100%; min-height: 100vh; }
+
+        .sidebar {
+            width: 320px;
+            background: #ffffff;
+            box-shadow: -15px 0 40px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 30px;
+            position: fixed;
+            height: 100vh;
+            right: 0;
+            top: 0;
+            z-index: 50;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            margin-right: 320px;
+            width: calc(100% - 320px);
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+        }
+
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            animation: drift 15s infinite alternate ease-in-out;
+            z-index: -1;
+        }
+
+        .shape-a { width: 600px; height: 600px; top: -10%; left: -10%; }
+        .shape-b { width: 450px; height: 450px; bottom: -15%; right: 20%; animation-delay: -5s; animation-duration: 20s; }
+
+        @keyframes drift {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            100% { transform: translateY(60px) rotate(45deg) scale(1.05); }
+        }
+
+        .brand-header { margin-bottom: 30px; }
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #ecfdf5;
+            color: #059669;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #d1fae5;
+        }
+        .brand-header h2 { font-size: 26px; font-weight: 900; line-height: 1.4; color: #0f172a; margin-bottom: 10px; }
+        .district-badge { font-size: 14px; color: #64748b; font-weight: 700; margin-bottom: 15px; }
+
+        .teacher-info-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+        .teacher-info-box h4 { font-size: 15px; font-weight: 800; color: #1e293b; margin-bottom: 5px; }
+        .teacher-info-box p { font-size: 13px; font-weight: 700; color: #059669; }
+
+        .tab-menu { display: flex; flex-direction: column; gap: 12px; margin-bottom: auto; }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 800;
+            color: #64748b;
+            cursor: pointer;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .tab-btn i { font-size: 20px; width: 24px; text-align: center; }
+        .tab-btn:hover { background: #f8fafc; color: #059669; transform: translateX(-5px); }
+        .tab-btn.active {
+            background: #059669;
+            color: #ffffff;
+            box-shadow: 0 10px 20px -5px rgba(5, 150, 105, 0.4);
+            transform: translateX(-5px);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 900;
+            display: none;
+        }
+
+        .sidebar-actions { margin-top: 40px; display: flex; flex-direction: column; gap: 12px; }
+
+        .tab-content { display: none; animation: slideUp 0.5s ease forwards; }
+        .tab-content.active { display: block; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(226, 232, 240, 0.5);
+        }
+        .card h3 { font-size: 20px; font-weight: 900; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+
+        .status-banner {
+            padding: 15px 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 800;
+            font-size: 15px;
+        }
+        .status-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .status-approved { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+        .status-rejected { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        .grid-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+
+        .form-group { margin-bottom: 20px; position: relative; }
+        .form-group label { display: block; font-size: 14px; font-weight: 800; color: #64748b; margin-bottom: 10px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px 0 14px 20px;
+            border: none;
+            border-bottom: 2px solid #cbd5e1;
+            background: transparent;
+            font-size: 15px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .form-group select { padding-left: 35px; appearance: none; cursor: pointer; }
+        .form-group input:focus, .form-group select:focus { border-bottom-color: #059669; }
+        .form-group input::placeholder { color: #94a3b8; font-weight: 500; font-size: 13px; }
+
+        .input-container { position: relative; }
+        .input-container::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #cbd5e1;
+            pointer-events: none;
+        }
+        .form-group:focus-within .input-container::after { transform: translateY(-50%) rotate(180deg); color: #059669; }
+
+        .line-indicator {
+            position: absolute; bottom: 0; right: 0; height: 2px; width: 0;
+            background: linear-gradient(90deg, #059669, #3b82f6);
+            transition: width 0.5s;
+        }
+        .form-group:focus-within .line-indicator { width: 100%; }
+
+        .btn {
+            border: none; padding: 14px 24px; border-radius: 12px; font-size: 15px; font-weight: 800;
+            cursor: pointer; display: inline-flex; justify-content: center; align-items: center; gap: 10px; transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .btn-submit { background: #059669; color: #fff; width: 100%; }
+        .btn-secondary { background: #64748b; color: #fff; }
+        .btn-danger { background: #ef4444; color: #fff; }
+
+        .chat-box {
+            border: 2px solid rgba(226, 232, 240, 0.6); border-radius: 20px; padding: 20px;
+            height: 350px; overflow-y: auto; background-color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px; display: flex; flex-direction: column; gap: 15px;
+        }
+        .chat-message { padding: 14px 20px; border-radius: 20px; max-width: 75%; font-size: 15px; font-weight: 600; line-height: 1.5; }
+        .chat-message.sent { background-color: #059669; color: white; align-self: flex-start; border-top-right-radius: 4px; }
+        .chat-message.received { background-color: #ffffff; color: #0f172a; align-self: flex-end; border-top-left-radius: 4px; }
+
+        .custom-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+        }
+        .custom-modal-overlay.active { opacity: 1; visibility: visible; }
+        .custom-modal {
+            background: #ffffff; padding: 40px; border-radius: 24px; width: 100%; max-width: 450px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1); text-align: center;
+        }
+        .custom-modal h4 { color: #1e293b; font-size: 22px; font-weight: 900; margin-bottom: 15px; }
+        .custom-modal p { color: #64748b; font-size: 16px; margin-bottom: 30px; }
+        .custom-modal-actions { display: flex; justify-content: center; gap: 15px; }
+        .custom-modal-actions .btn { flex: 1; }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 30px; border-radius: 0 0 30px 30px; }
+            .main-content { margin-right: 0; width: 100%; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="customModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <h4 id="modalTitle">تأكيد الإجراء</h4>
+            <p id="modalMessage">هل أنت متأكد من تنفيذ هذا الإجراء؟</p>
+            <div class="custom-modal-actions">
+                <button id="modalConfirmBtn" class="btn btn-submit">تأكيد</button>
+                <button onclick="closeModal()" class="btn btn-secondary">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand-header">
+                <div class="brand-badge">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    حساب الأستاذ
+                </div>
+                <h2>لوحة التحكم</h2>
+                <div class="district-badge" id="districtBadgeTitle">جاري التحميل...</div>
+                <div class="teacher-info-box">
+                    <h4 id="schoolTitle">المدرسة: جاري التحميل...</h4>
+                    <p id="teacherTitle"></p>
+                </div>
+            </div>
+
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="switchTab('profileTab', this)">
+                    <i class="fa-solid fa-address-card"></i> بياناتي الإدارية
+                </button>
+                <button class="tab-btn" onclick="switchTab('chatTab', this)">
+                    <i class="fa-solid fa-envelope-open-text"></i> مراسلة المدير
+                    <span id="chatNotificationBadge" class="notification-badge">0</span>
+                </button>
+            </div>
+
+            <div class="sidebar-actions">
+                <button class="btn btn-danger" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="floating-shape shape-a"></div>
+            <div class="floating-shape shape-b"></div>
+
+            <div id="profileTab" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-pen-to-square"></i> إدخال وتحديث البيانات الإدارية</h3>
+                    </div>
+
+                    <div id="statusBanner" class="status-banner" style="display: none;">
+                        <i id="statusIcon" class="fa-solid fa-circle-info fa-lg"></i>
+                        <span id="statusText">جاري فحص حالة البيانات...</span>
+                    </div>
+
+                    <form onsubmit="confirmSubmitProfile(event)">
+                        <div class="grid-forms">
+                            <div class="form-group">
+                                <label>الاسم واللقب الكامل</label>
+                                <div class="input-container">
+                                    <input type="text" id="fullName" placeholder="أدخل الاسم واللقب" required>
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>اللقب الأصلي للزوجة</label>
+                                <div class="input-container">
+                                    <input type="text" id="maidenName" placeholder="اللقب الأصلي إن وجد">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ ومكان الميلاد</label>
+                                <div class="input-container">
+                                    <input type="text" id="birthInfo" placeholder="مثال: 09 أوت 1994 بوهران">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الإطار</label>
+                                <div class="input-container">
+                                    <select id="framework" onchange="autoSelectCategory()" required>
+                                        <option value="">-- اختر الإطار --</option>
+                                        <option value="أستاذ التعليم الابتدائي">أستاذ التعليم الابتدائي</option>
+                                        <option value="أستاذ التعليم الابتدائي قسم أول">أستاذ التعليم الابتدائي قسم أول</option>
+                                        <option value="أستاذ التعليم الابتدائي قسم ثان">أستاذ التعليم الابتدائي قسم ثان</option>
+                                        <option value="أستاذ مميز">أستاذ مميز</option>
+                                    </select>
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الصنف (تلقائي)</label>
+                                <div class="input-container">
+                                    <select id="category" required disabled>
+                                        <option value="">-- يحدد تلقائياً --</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                    </select>
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الدرجة الحالية</label>
+                                <div class="input-container">
+                                    <select id="grade" required>
+                                        <option value="">-- اختر الدرجة --</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ السريان</label>
+                                <div class="input-container">
+                                    <input type="date" id="effectiveDate">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>نقطة التفتيش</label>
+                                <div class="input-container">
+                                    <input type="number" id="inspectionScore" step="0.25" min="0" max="20" placeholder="مثال: 15.5">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ آخر تفتيش</label>
+                                <div class="input-container">
+                                    <input type="date" id="lastInspectionDate">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ آخر زيارة توجيهية</label>
+                                <div class="input-container">
+                                    <input type="date" id="lastGuidanceVisitDate">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ أول تعيين</label>
+                                <div class="input-container">
+                                    <input type="date" id="firstAppointmentDate">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ التثبيت</label>
+                                <div class="input-container">
+                                    <input type="date" id="confirmationDate">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الشهادة والمؤهل العلمي</label>
+                                <div class="input-container">
+                                    <input type="text" id="degreeSubject" placeholder="مثال: ليسانس لغة عربية">
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>القسم المسند حالياً</label>
+                                <div class="input-container">
+                                    <select id="assignedClass" required>
+                                        <option value="">-- اختر القسم --</option>
+                                        <option value="التحضيري">التحضيري</option>
+                                        <option value="السنة الأولى">السنة الأولى</option>
+                                        <option value="السنة الثانية">السنة الثانية</option>
+                                        <option value="السنة الثالثة">السنة الثالثة</option>
+                                        <option value="السنة الرابعة">السنة الرابعة</option>
+                                        <option value="السنة الخامسة">السنة الخامسة</option>
+                                    </select>
+                                    <div class="line-indicator"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 25px;">
+                            <button type="submit" id="saveBtn" class="btn btn-submit">
+                                <i class="fa-solid fa-paper-plane"></i> إرسال البيانات للمراجعة
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="chatTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-comments"></i> مراسلة مدير المدرسة</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="loadTeacherChat()"><i class="fa-solid fa-rotate-right"></i> تحديث</button>
+                    </div>
+                    
+                    <div class="chat-box" id="teacherChatBox">
+                        <div style="text-align: center; color: #94a3b8; margin-top: 100px; font-weight: 700;">لا توجد رسائل سابقة.</div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1; margin: 0;">
+                            <input type="text" id="teacherChatMessage" placeholder="اكتب رسالتك لمدير المدرسة..." style="border-bottom: 2px solid #cbd5e1;">
+                        </div>
+                        <button class="btn btn-submit" style="width: auto;" onclick="sendTeacherMessage()">
+                            <i class="fa-solid fa-paper-plane"></i> إرسال
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+<script>
+    const SCRIPT_URL = localStorage.getItem("currentScriptUrl");
+    const currentDistrictName = localStorage.getItem("currentDistrictName");
+
+    if (!SCRIPT_URL) {
+        alert("يرجى اختيار الولاية والمقاطعة أولاً.");
+        window.location.href = "index.html";
+    }
+
+    let currentUsername = "";
+    let directorUsername = "";
+
+    const categoryMapping = {
+        "أستاذ التعليم الابتدائي": "12",
+        "أستاذ التعليم الابتدائي قسم أول": "13",
+        "أستاذ التعليم الابتدائي قسم ثان": "14",
+        "أستاذ مميز": "15"
+    };
+
+    function autoSelectCategory() {
+        const frameworkVal = document.getElementById("framework").value;
+        document.getElementById("category").value = categoryMapping[frameworkVal] || "";
+    }
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+
+        if (tabId === 'chatTab') {
+            loadTeacherChat();
+        }
+    }
+
+    function showModal(title, message, confirmCallback) {
+        const modal = document.getElementById("customModal");
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalMessage").textContent = message;
+        
+        const confirmBtn = document.getElementById("modalConfirmBtn");
+        const newBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+        
+        newBtn.onclick = function() {
+            closeModal();
+            confirmCallback();
+        };
+
+        modal.classList.add("active");
+    }
+
+    function closeModal() {
+        document.getElementById("customModal").classList.remove("active");
+    }
+
+    function formatDateInput(rawDate) {
+        if (!rawDate || rawDate === '-') return '';
+        const d = new Date(rawDate);
+        if (isNaN(d.getTime())) return '';
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+    }
+
+    window.onload = function() {
+        const session = JSON.parse(localStorage.getItem("userSession"));
+        if (!session || session.role !== "teacher") {
+            window.location.href = "login.html";
+        } else {
+            currentUsername = session.username;
+            document.getElementById("teacherTitle").innerHTML = "<i class='fa-solid fa-user'></i> الأستاذ: " + currentUsername;
+            
+            if (currentDistrictName) {
+                document.getElementById("districtBadgeTitle").textContent = currentDistrictName;
+            }
+
+            loadTeacherProfile();
+            setInterval(checkNewMessages, 10000);
+        }
+    };
+
+    async function loadTeacherProfile() {
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getTeacherProfile", username: currentUsername })
+            });
+            const result = await response.json();
+
+            if (result.status === "success" && result.data) {
+                const t = result.data;
+                document.getElementById("schoolTitle").innerHTML = "<i class='fa-solid fa-school'></i> المدرسة: " + (t.schoolName || "غير مسند");
+                directorUsername = t.schoolDirectorUsername || "";
+
+                document.getElementById("fullName").value = t.fullName || "";
+                document.getElementById("maidenName").value = t.maidenName || "";
+                document.getElementById("birthInfo").value = t.birthInfo || "";
+                document.getElementById("framework").value = t.framework || "";
+                autoSelectCategory();
+                document.getElementById("grade").value = t.grade || "";
+                document.getElementById("effectiveDate").value = formatDateInput(t.effectiveDate);
+                document.getElementById("inspectionScore").value = t.inspectionScore || "";
+                document.getElementById("lastInspectionDate").value = formatDateInput(t.lastInspectionDate);
+                document.getElementById("lastGuidanceVisitDate").value = formatDateInput(t.lastGuidanceVisitDate);
+                document.getElementById("firstAppointmentDate").value = formatDateInput(t.firstAppointmentDate);
+                document.getElementById("confirmationDate").value = formatDateInput(t.confirmationDate);
+                document.getElementById("degreeSubject").value = t.degreeSubject || "";
+                document.getElementById("assignedClass").value = t.assignedClass || "";
+
+                const status = t.status || "new";
+                if (status === "pending") {
+                    updateStatusBanner("status-pending", "fa-clock-rotate-left", "بياناتك قيد المراجعة حالياً من طرف مدير المدرسة.");
+                } else if (status === "approved") {
+                    updateStatusBanner("status-approved", "fa-circle-check", "تم اعتماد بياناتك رسمياً من طرف الإدارة.");
+                } else if (status === "rejected") {
+                    updateStatusBanner("status-rejected", "fa-circle-exclamation", "تم رفض البيانات من المدير، يرجى التعديل وإعادة الإرسال.");
+                } else {
+                    updateStatusBanner("none", "", "");
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function updateStatusBanner(className, iconClass, text) {
+        const banner = document.getElementById("statusBanner");
+        if (className === "none") {
+            banner.style.display = "none";
+            return;
+        }
+        banner.style.display = "flex";
+        banner.className = "status-banner " + className;
+        document.getElementById("statusIcon").className = "fa-solid " + iconClass + " fa-lg";
+        document.getElementById("statusText").textContent = text;
+    }
+
+    function confirmSubmitProfile(e) {
+        e.preventDefault();
+        showModal("إرسال البيانات", "هل أنت متأكد من إرسال هذه البيانات إلى مدير المدرسة للمراجعة والاعتماد؟", function() {
+            executeSubmitProfile();
+        });
+    }
+
+    async function executeSubmitProfile() {
+        const data = {
+            action: "submitTeacherProfile",
+            username: currentUsername,
+            fullName: document.getElementById("fullName").value.trim(),
+            maidenName: document.getElementById("maidenName").value.trim(),
+            birthInfo: document.getElementById("birthInfo").value.trim(),
+            framework: document.getElementById("framework").value,
+            category: document.getElementById("category").value,
+            grade: document.getElementById("grade").value,
+            effectiveDate: document.getElementById("effectiveDate").value,
+            inspectionScore: document.getElementById("inspectionScore").value.trim(),
+            lastInspectionDate: document.getElementById("lastInspectionDate").value,
+            lastGuidanceVisitDate: document.getElementById("lastGuidanceVisitDate").value,
+            firstAppointmentDate: document.getElementById("firstAppointmentDate").value,
+            confirmationDate: document.getElementById("confirmationDate").value,
+            degreeSubject: document.getElementById("degreeSubject").value.trim(),
+            assignedClass: document.getElementById("assignedClass").value
+        };
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+            alert(result.message);
+            loadTeacherProfile();
+        } else {
+            alert(result.message);
+        }
+    }
+
+    async function loadTeacherChat() {
+        if (!directorUsername) return;
+        const chatBox = document.getElementById("teacherChatBox");
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "getMessages", user1: currentUsername, user2: directorUsername })
+        });
+        const result = await response.json();
+        
+        if (result.status === "success") {
+            const messages = result.messages || [];
+            if (messages.length === 0) {
+                chatBox.innerHTML = '<div style="text-align: center; color: #94a3b8; margin-top: 100px; font-weight: 700;">لا توجد رسائل سابقة.</div>';
+            } else {
+                chatBox.innerHTML = messages.map(m => `
+                    <div class="chat-message ${m.sender === currentUsername ? 'sent' : 'received'}">
+                        <div>${m.text}</div>
+                    </div>
+                `).join("");
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    }
+
+    async function sendTeacherMessage() {
+        if (!directorUsername) return alert("لم يتم ربطك بمدير المدرسة بعد.");
+        const msgInput = document.getElementById("teacherChatMessage");
+        const text = msgInput.value.trim();
+        if (!text) return;
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "sendMessage", sender: currentUsername, receiver: directorUsername, message: text })
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+            msgInput.value = "";
+            loadTeacherChat();
+        }
+    }
+
+    async function checkNewMessages() {
+        if (!directorUsername) return;
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getMessages", user1: currentUsername, user2: directorUsername })
+            });
+            const result = await response.json();
+            if (result.status === "success" && result.messages) {
+                const count = result.messages.length;
+                const badge = document.getElementById("chatNotificationBadge");
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = "inline-block";
+                    } else {
+                        badge.style.display = "none";
+                    }
+                }
+            }
+        } catch (e) {}
+    }
+
+    function logout() {
+        localStorage.removeItem("userSession");
+        window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>
