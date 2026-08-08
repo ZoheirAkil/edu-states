@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النظام الرقمي لمتابعة الوضعية الإدارية للأساتذة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ink: #12172b;
+            --muted: #6b7280;
+            --line: #e6e8f0;
+            --card: #ffffff;
+            --accent: #3862f2;
+            --accent-soft: #eaefff;
+            --accent-dark: #2b4fd6;
+            --panel-1: #1c2a6b;
+            --panel-2: #0d1338;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body { min-height: 100vh; }
+
+        body {
+            display: flex;
+            background: var(--card);
+            color: var(--ink);
+            overflow-x: hidden;
+        }
+
+        .split-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .form-side {
+            width: 45%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6% 9%;
+        }
+
+        .form-inner {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 7px 14px;
+            border-radius: 999px;
+            margin-bottom: 22px;
+            opacity: 0;
+            animation: riseIn 0.6s ease-out forwards;
+        }
+
+        .badge i { font-size: 11px; }
+
+        h1 {
+            font-size: 25px;
+            font-weight: 900;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: riseIn 0.6s 0.05s ease-out forwards;
+        }
+
+        .lede {
+            font-size: 14.5px;
+            color: var(--muted);
+            line-height: 1.75;
+            margin-bottom: 28px;
+            opacity: 0;
+            animation: riseIn 0.6s 0.1s ease-out forwards;
+        }
+
+        .field {
+            opacity: 0;
+            animation: riseIn 0.6s 0.15s ease-out forwards;
+            position: relative;
+            z-index: 50; 
+        }
+
+        .steps {
+            display: flex;
+            align-items: center;
+            margin: 4px 0 22px;
+        }
+
+        .step-dot {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.35s ease, color 0.35s ease, transform 0.35s ease;
+        }
+
+        .step-dot i { display: none; font-size: 11px; }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: var(--line);
+            margin: 0 8px;
+            border-radius: 2px;
+            transition: background 0.4s ease;
+        }
+
+        .field:has(#stateSelect:valid) .step-line { background: var(--accent); }
+
+        .field:has(#stateSelect:valid) .step-dot:first-child {
+            background: var(--accent);
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .field:has(#stateSelect:valid) .step-dot:first-child span { display: none; }
+        .field:has(#stateSelect:valid) .step-dot:first-child i { display: block; }
+
+        .field:has(#districtSelect:valid) .step-dot:last-child {
+            background: var(--accent);
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .field:has(#districtSelect:valid) .step-dot:last-child span { display: none; }
+        .field:has(#districtSelect:valid) .step-dot:last-child i { display: block; }
+
+        .form-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+        .field .form-group:first-child { z-index: 30; }
+        .field .form-group:last-child { z-index: 20; }
+
+        .form-group label {
+            display: block;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 9px;
+            transition: color 0.3s ease;
+        }
+
+        .form-group:focus-within label { color: var(--accent); }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-group select {
+            display: none !important;
+        }
+
+        .custom-select-ui {
+            width: 100%;
+            padding: 14px 16px 14px 40px;
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            background: #f8fafc;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .custom-select-ui::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 13px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .custom-select-ui.active {
+            border-color: var(--accent);
+            background: var(--card);
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+
+        .custom-select-ui.active::after {
+            color: var(--accent);
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .input-container.disabled .custom-select-ui {
+            background: #f1f5f9;
+            color: #a7abb8;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        .input-container.disabled .custom-select-ui::after {
+            color: #cbd5e1;
+        }
+
+        .custom-options-list {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 15px 35px -5px rgba(18, 23, 43, 0.1);
+            z-index: 100;
+            max-height: 220px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-options-list.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .custom-option {
+            padding: 12px 16px;
+            font-size: 14.5px;
+            font-weight: 600;
+            color: var(--ink);
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .custom-option:not(.disabled):hover {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .custom-option.disabled {
+            color: #a7abb8;
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        .custom-options-list::-webkit-scrollbar { width: 6px; }
+        .custom-options-list::-webkit-scrollbar-track { background: transparent; }
+        .custom-options-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-options-list::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            opacity: 0;
+            animation: riseIn 0.6s 0.2s ease-out forwards;
+            transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .btn-submit i { transition: transform 0.3s ease; }
+
+        .btn-submit:hover:not(:disabled) {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 26px -10px rgba(56, 98, 242, 0.5);
+        }
+
+        .btn-submit:hover:not(:disabled) i { transform: translateX(-5px); }
+
+        .btn-submit:disabled { background: #e5e7f0; color: #a7abb8; cursor: not-allowed; }
+
+        .footer {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+            font-size: 13px;
+            color: var(--muted);
+            opacity: 0;
+            animation: fadeIn 1s 0.35s ease-out forwards;
+        }
+
+        .footer a {
+            color: var(--ink);
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .footer a:hover { color: var(--accent); }
+
+        .presentation-side {
+            width: 55%;
+            position: relative;
+            background: linear-gradient(155deg, var(--panel-1), var(--panel-2));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        .presentation-side::before {
+            content: '';
+            position: absolute;
+            width: 620px;
+            height: 620px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.06), transparent 70%);
+            top: -120px;
+            right: -160px;
+        }
+
+        .orbit-wrap {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 42px;
+        }
+
+        .orbit-track {
+            position: absolute;
+            inset: 0;
+            border: 1px dashed rgba(255,255,255,0.16);
+            border-radius: 50%;
+        }
+
+        .orbit-ring {
+            position: absolute;
+            inset: 0;
+            animation: spin 34s linear infinite;
+        }
+
+        .satellite {
+            position: absolute;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 17px;
+            backdrop-filter: blur(4px);
+        }
+
+        .satellite.s1 { top: -27px; left: calc(50% - 27px); animation: counterSpin 34s linear infinite; }
+        .satellite.s2 { bottom: 24px; left: 6px; animation: counterSpin 34s linear infinite; }
+        .satellite.s3 { bottom: 24px; right: 6px; animation: counterSpin 34s linear infinite; }
+
+        .orbit-hub {
+            position: relative;
+            z-index: 2;
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 45px -15px rgba(0,0,0,0.5);
+        }
+
+        .orbit-hub i { font-size: 34px; color: var(--accent); }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes counterSpin { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+        .presentation-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 480px;
+        }
+
+        .presentation-content .kicker {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            color: rgba(255,255,255,0.55);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            opacity: 0;
+            animation: fadeIn 0.8s 0.2s ease-out forwards;
+        }
+
+        .presentation-content h2 {
+            font-size: 30px;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            opacity: 0;
+            animation: riseIn 0.7s 0.32s ease-out forwards;
+        }
+
+        .presentation-content p {
+            font-size: 15.5px;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.85;
+            font-weight: 500;
+            opacity: 0;
+            animation: riseIn 0.7s 0.42s ease-out forwards;
+        }
+
+        .role-strip {
+            display: flex;
+            justify-content: center;
+            gap: 26px;
+            margin-top: 30px;
+            opacity: 0;
+            animation: fadeIn 0.8s 0.55s ease-out forwards;
+        }
+
+        .role-strip span {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.7);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .role-strip i { color: #ffffff; font-size: 12px; }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+
+        .btn-submit:focus-visible,
+        .footer a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 900px) {
+            .split-layout { flex-direction: column; }
+            .presentation-side { width: 100%; min-height: 44vh; padding: 50px 24px; }
+            .form-side { width: 100%; padding: 0 24px 50px; margin-top: -28px; }
+            .form-inner { background: var(--card); border-radius: 22px; padding: 36px 26px; box-shadow: 0 20px 45px -20px rgba(18,23,43,0.16); }
+            .orbit-wrap { width: 230px; height: 230px; margin-bottom: 30px; }
+            .satellite { width: 44px; height: 44px; font-size: 15px; }
+            .orbit-hub { width: 78px; height: 78px; }
+            .orbit-hub i { font-size: 28px; }
+            .presentation-content h2 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="split-layout">
+
+        <div class="form-side">
+            <div class="form-inner">
+                <div class="badge"><i class="fa-solid fa-layer-group"></i> الولوج للنظام</div>
+                <h1>تحديد مسار العمل الخاص بك للبدء</h1>
+
+                <div class="field">
+                    <div class="form-group">
+                        <label for="stateSelect">الولاية التابع لها</label>
+                        <div class="input-container">
+                            <select id="stateSelect" required>
+                                <option value="">-- جاري تحميل القائمة --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="steps">
+                        <div class="step-dot"><span>1</span><i class="fa-solid fa-check"></i></div>
+                        <div class="step-line"></div>
+                        <div class="step-dot"><span>2</span><i class="fa-solid fa-check"></i></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="districtSelect">المقاطعة البيداغوجية المستهدفة</label>
+                        <div class="input-container">
+                            <select id="districtSelect" disabled required>
+                                <option value="">-- يرجى تحديد الولاية أولاً --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-submit" id="enterBtn" onclick="goToDistrict()" disabled>
+                    <span>متابعة تسجيل الدخول</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+
+                <div class="footer">
+                    هل تواجه مشكلة أو ترغب بإضافة مقاطعة؟
+                    <br>
+                    <a href="mailto:zoheir.akil.dz@gmail.com">
+                        <i class="fa-solid fa-envelope"></i> zoheir.akil.dz@gmail.com
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="presentation-side">
+            <div class="orbit-wrap">
+                <div class="orbit-track"></div>
+                <div class="orbit-ring">
+                    <div class="satellite s1"><i class="fa-solid fa-chalkboard-user"></i></div>
+                    <div class="satellite s2"><i class="fa-solid fa-user-tie"></i></div>
+                    <div class="satellite s3"><i class="fa-solid fa-magnifying-glass"></i></div>
+                </div>
+                <div class="orbit-hub"><i class="fa-solid fa-building-columns"></i></div>
+            </div>
+
+            <div class="presentation-content">
+                <span class="kicker">منظومة رقمية موحّدة</span>
+                <h2>النظام الرقمي لمتابعة الوضعية الإدارية للأساتذة</h2>
+                <p>نظام متكامل يتيح للأساتذة والمديرين والمفتشين إدارة الملفات ومتابعة الوضعية الإدارية بمرونة وسهولة فائقة.</p>
+                <div class="role-strip">
+                    <span><i class="fa-solid fa-circle"></i> الأساتذة</span>
+                    <span><i class="fa-solid fa-circle"></i> المديرون</span>
+                    <span><i class="fa-solid fa-circle"></i> المفتشون</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    const MAIN_PORTAL_URL = "https://script.google.com/macros/s/AKfycbxpMWiDgT8pgT_jkdDmP9mwfLZD1Wkaz63jWZAxy8iyk5maJNZCzZnQp3eS4jPEBIjshQ/exec";
+    
+    let globalPortalData = {};
+    
+    const stateSelect = document.getElementById('stateSelect');
+    const districtSelect = document.getElementById('districtSelect');
+    const enterBtn = document.getElementById('enterBtn');
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetch(`${MAIN_PORTAL_URL}?action=getPortalData`);
+            const result = await response.json();
+            
+            if (result.status === "success" && result.data) {
+                globalPortalData = result.data;
+                stateSelect.innerHTML = '<option value="">-- اختر الولاية --</option>';
+                Object.keys(globalPortalData).forEach(state => {
+                    stateSelect.innerHTML += `<option value="${state}">${state}</option>`;
+                });
+            } else {
+                stateSelect.innerHTML = '<option value="">لا توجد ولايات مسجلة</option>';
+            }
+        } catch (error) {
+            stateSelect.innerHTML = '<option value="">خطأ في الاتصال بالنظام المركزي</option>';
+        }
+    });
+
+    stateSelect.addEventListener('change', function() {
+        const selectedState = this.value;
+        districtSelect.innerHTML = '<option value="">-- اختر المقاطعة --</option>';
+        districtSelect.disabled = true;
+        enterBtn.disabled = true;
+        
+        if (selectedState && globalPortalData[selectedState]) {
+            districtSelect.disabled = false;
+            globalPortalData[selectedState].forEach(district => {
+                districtSelect.innerHTML += `<option value="${district}">${district}</option>`;
+            });
+        }
+    });
+
+    districtSelect.addEventListener('change', function() {
+        if (this.value) {
+            enterBtn.disabled = false;
+        } else {
+            enterBtn.disabled = true;
+        }
+    });
+
+    async function goToDistrict() {
+        const districtName = districtSelect.value;
+        if (!districtName) return;
+        
+        enterBtn.disabled = true;
+        enterBtn.innerHTML = '<span>جاري التحميل...</span><i class="fa-solid fa-spinner fa-spin"></i>';
+        
+        try {
+            const response = await fetch(`${MAIN_PORTAL_URL}?action=getScriptUrl&district=${encodeURIComponent(districtName)}`);
+            const result = await response.json();
+            
+            if (result.status === "success" && result.scriptUrl) {
+                localStorage.setItem("currentScriptUrl", result.scriptUrl);
+                localStorage.setItem("currentDistrictName", districtName);
+                window.location.href = "login.html";
+            } else {
+                alert("خطأ: لم يتم العثور على الرابط الخاص بهذه المقاطعة.");
+                enterBtn.disabled = false;
+                enterBtn.innerHTML = '<span>متابعة تسجيل الدخول</span><i class="fa-solid fa-arrow-left"></i>';
+            }
+        } catch (error) {
+            alert("حدث خطأ أثناء الاتصال بالنظام المركزي.");
+            enterBtn.disabled = false;
+            enterBtn.innerHTML = '<span>متابعة تسجيل الدخول</span><i class="fa-solid fa-arrow-left"></i>';
+        }
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const containers = document.querySelectorAll('.input-container');
+
+        containers.forEach(container => {
+            const select = container.querySelector('select');
+            if (!select) return;
+
+            const customSelect = document.createElement('div');
+            customSelect.className = 'custom-select-ui';
+            
+            const selectedText = document.createElement('span');
+            selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+            customSelect.appendChild(selectedText);
+
+            const optionsList = document.createElement('div');
+            optionsList.className = 'custom-options-list';
+
+            container.appendChild(customSelect);
+            container.appendChild(optionsList);
+
+            const renderOptions = () => {
+                optionsList.innerHTML = '';
+                Array.from(select.options).forEach((option, index) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'custom-option';
+                    if (option.disabled || option.value === "") optDiv.classList.add('disabled');
+                    optDiv.textContent = option.text;
+                    
+                    optDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (option.disabled || option.value === "") return;
+                        
+                        select.selectedIndex = index;
+                        selectedText.textContent = option.text;
+                        optionsList.classList.remove('show');
+                        customSelect.classList.remove('active');
+                        
+                        select.dispatchEvent(new Event('change'));
+                    });
+                    optionsList.appendChild(optDiv);
+                });
+            };
+
+            const observer = new MutationObserver(() => {
+                renderOptions();
+                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+                if (select.disabled) {
+                    container.classList.add('disabled');
+                } else {
+                    container.classList.remove('disabled');
+                }
+            });
+            
+            observer.observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+
+            renderOptions();
+            if (select.disabled) container.classList.add('disabled');
+
+            customSelect.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (select.disabled) return;
+                
+                document.querySelectorAll('.custom-options-list').forEach(l => {
+                    if (l !== optionsList) l.classList.remove('show');
+                });
+                document.querySelectorAll('.custom-select-ui').forEach(c => {
+                    if (c !== customSelect) c.classList.remove('active');
+                });
+
+                optionsList.classList.toggle('show');
+                customSelect.classList.toggle('active');
+            });
+
+            select.addEventListener('change', () => {
+                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+            });
+        });
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.custom-options-list').forEach(l => l.classList.remove('show'));
+            document.querySelectorAll('.custom-select-ui').forEach(c => c.classList.remove('active'));
+        });
+    });
+</script>
+</body>
+</html>
