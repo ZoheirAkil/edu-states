@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - الأستاذ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ink: #12172b;
+            --muted: #6b7280;
+            --line: #e6e8f0;
+            --card: #ffffff;
+            --accent: #3862f2;
+            --accent-soft: #eaefff;
+            --accent-dark: #2b4fd6;
+            --panel-1: #1c2a6b;
+            --panel-2: #0d1338;
+            --bg-body: #f8fafc;
+        }
+
+        * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; outline: none; }
+        
+        body {
+            background: var(--bg-body);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(155deg, var(--panel-1), var(--panel-2));
+            box-shadow: -15px 0 40px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 25px;
+            position: fixed;
+            height: 100vh;
+            right: 0;
+            top: 0;
+            z-index: 50;
+            overflow-y: auto;
+            color: #ffffff;
+        }
+
+        .main-content {
+            margin-right: 320px;
+            flex: 1;
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            width: calc(100% - 320px);
+        }
+
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 98, 242, 0.08), transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .shape-a { width: 600px; height: 600px; top: -10%; left: -10%; }
+        .shape-b { width: 450px; height: 450px; bottom: -15%; right: 20%; }
+
+        .brand-header { margin-bottom: 25px; }
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #38bdf8;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12.5px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .brand-header h2 { font-size: 24px; font-weight: 900; line-height: 1.4; color: #ffffff; margin-bottom: 6px; }
+        .district-badge { font-size: 14px; color: rgba(255,255,255,0.65); font-weight: 600; margin-bottom: 12px; }
+
+        .teacher-info-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 25px;
+        }
+        .teacher-info-box h4 { font-size: 14px; font-weight: 800; color: #ffffff; margin-bottom: 4px; line-height: 1.4; }
+        .teacher-info-box p { font-size: 12.5px; font-weight: 700; color: #38bdf8; }
+
+        .tab-menu { display: flex; flex-direction: column; gap: 10px; margin-bottom: auto; }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .tab-btn i { font-size: 18px; width: 22px; text-align: center; }
+        .tab-btn:hover { background: rgba(255,255,255,0.06); color: #ffffff; transform: translateX(-4px); }
+        .tab-btn.active {
+            background: #ffffff;
+            color: var(--accent);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
+            transform: translateX(-4px);
+        }
+        .tab-btn.active i { color: var(--accent); }
+
+        .notification-badge {
+            position: absolute; top: 12px; left: 15px; background-color: #ef4444; color: white;
+            border-radius: 50px; padding: 2px 8px; font-size: 11px; font-weight: 900; display: none;
+        }
+
+        .sidebar-actions { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-logout {
+            background: #dc2626;
+            color: #ffffff;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover { background: #b91c1c; }
+
+        .tab-content { display: none; animation: riseIn 0.5s ease forwards; }
+        .tab-content.active { display: block; }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--line);
+            box-shadow: 0 10px 30px rgba(18, 23, 43, 0.04);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--line);
+        }
+        .card h3 { font-size: 18px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+
+        .status-banner {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 14.5px;
+        }
+        .status-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .status-approved { background: #d1fae5; color: #059669; border: 1px solid #a7f3d0; }
+        .status-rejected { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+        .grid-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+
+        .form-group { margin-bottom: 18px; position: relative; text-align: right; z-index: 20; }
+        .form-group label { display: block; font-size: 13.5px; font-weight: 700; color: var(--muted); margin-bottom: 8px; transition: color 0.3s ease; }
+        .form-group:focus-within label { color: var(--accent); }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            background: #fafbfc;
+            font-size: 14.5px;
+            color: var(--ink);
+            font-weight: 700;
+            text-align: right;
+            transition: all 0.25s;
+        }
+        .form-group input:disabled { background-color: #f1f5f9; cursor: not-allowed; opacity: 0.7; border-color: #e2e8f0; }
+        .form-group input:focus:not(:disabled) { border-color: var(--accent); background: #ffffff; box-shadow: 0 0 0 4px var(--accent-soft); }
+        .form-group input::placeholder { color: #a7abb8; font-weight: 500; font-size: 13px; }
+
+        .input-container { position: relative; }
+
+        .form-group select, .input-container select { display: none !important; }
+
+        .custom-select-ui {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            background: #fafbfc;
+            font-size: 14.5px;
+            color: var(--ink);
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s;
+            user-select: none;
+        }
+
+        .custom-select-ui::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 13px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .custom-select-ui.active { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-soft); }
+        .custom-select-ui.active::after { color: var(--accent); transform: translateY(-50%) rotate(180deg); }
+
+        .input-container.disabled .custom-select-ui { background: #f1f5f9; color: #a7abb8; cursor: not-allowed; border-color: #e2e8f0; }
+        .input-container.disabled .custom-select-ui::after { color: #cbd5e1; }
+
+        .custom-options-list {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            box-shadow: 0 15px 35px -5px rgba(18, 23, 43, 0.1);
+            z-index: 9999;
+            max-height: 220px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-options-list.show { opacity: 1; visibility: visible; transform: translateY(0); }
+
+        .custom-option {
+            padding: 12px 16px;
+            font-size: 14.5px;
+            font-weight: 600;
+            color: var(--ink);
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .custom-option:not(.disabled):hover { background: var(--accent-soft); color: var(--accent); }
+        .custom-option.disabled { color: #a7abb8; cursor: not-allowed; background: transparent; }
+
+        .custom-options-list::-webkit-scrollbar { width: 6px; }
+        .custom-options-list::-webkit-scrollbar-track { background: transparent; }
+        .custom-options-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-options-list::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .form-group:has(.custom-select-ui.active), .input-container:has(.custom-select-ui.active) { z-index: 50; }
+
+        .btn {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s;
+            position: relative;
+            z-index: 10;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+        .btn-submit { background: var(--accent); color: #fff; width: 100%; }
+        .btn-secondary { background: #64748b; color: #fff; }
+        .btn-danger { background: #dc2626; color: #fff; }
+        .btn-sm { padding: 8px 14px; font-size: 12.5px; border-radius: 8px; }
+
+        .chat-box {
+            border: 1.5px solid var(--line);
+            border-radius: 14px;
+            padding: 18px;
+            height: 320px;
+            overflow-y: auto;
+            background-color: #fafbfc;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            direction: rtl;
+        }
+        .chat-message { padding: 12px 16px; border-radius: 14px; max-width: 75%; font-size: 14.5px; font-weight: 600; line-height: 1.5; text-align: right; }
+        .chat-message.sent { background-color: var(--accent); color: white; align-self: flex-start; border-top-right-radius: 4px; }
+        .chat-message.received { background-color: #ffffff; color: var(--ink); align-self: flex-end; border-top-left-radius: 4px; border: 1px solid var(--line); }
+
+        .custom-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 23, 43, 0.5); backdrop-filter: blur(6px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+            direction: rtl;
+        }
+        .custom-modal-overlay.active { opacity: 1; visibility: visible; }
+        .custom-modal {
+            background: #ffffff; padding: 35px; border-radius: 20px; width: 100%; max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15); text-align: right; transform: translateY(20px); transition: all 0.3s;
+        }
+        .custom-modal-overlay.active .custom-modal { transform: translateY(0); }
+        .custom-modal h4 { color: var(--ink); font-size: 20px; font-weight: 900; margin-bottom: 12px; }
+        .custom-modal p { color: var(--muted); font-size: 15px; font-weight: 500; margin-bottom: 25px; line-height: 1.6; }
+        .custom-modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 25px; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; border-radius: 0; }
+            .main-content { margin-right: 0; padding: 25px; width: 100%; }
+            .tab-menu { flex-direction: row; flex-wrap: wrap; width: 100%; justify-content: center; }
+            .tab-btn { padding: 10px 14px; font-size: 13.5px; border-radius: 12px; margin-left: 0; padding-right: 14px; width: auto; }
+            .sidebar-actions { width: 100%; flex-direction: row; justify-content: center; margin-top: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="customModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <h4 id="modalTitle">تأكيد الإجراء</h4>
+            <p id="modalMessage">هل أنت متأكد من تنفيذ هذا الإجراء؟</p>
+            <div class="custom-modal-actions">
+                <button id="modalConfirmBtn" class="btn btn-submit">تأكيد</button>
+                <button onclick="closeModal()" class="btn btn-secondary">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand-header">
+                <div class="brand-badge">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    حساب الأستاذ
+                </div>
+                <h2>لوحة التحكم</h2>
+                <div class="district-badge" id="districtBadgeTitle">جاري التحميل...</div>
+                <div class="teacher-info-box">
+                    <h4 id="schoolTitle">المدرسة: جاري التحميل...</h4>
+                    <p id="teacherTitle"></p>
+                </div>
+            </div>
+
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="switchTab('profileTab', this)">
+                    <i class="fa-solid fa-address-card"></i> بياناتي الإدارية
+                </button>
+                <button class="tab-btn" onclick="switchTab('chatTab', this)">
+                    <i class="fa-solid fa-envelope-open-text"></i> مراسلة المدير
+                    <span id="chatNotificationBadge" class="notification-badge">0</span>
+                </button>
+            </div>
+
+            <div class="sidebar-actions">
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="floating-shape shape-a"></div>
+            <div class="floating-shape shape-b"></div>
+
+            <div id="profileTab" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-pen-to-square"></i> إدخال وتحديث البيانات الإدارية</h3>
+                    </div>
+
+                    <div id="statusBanner" class="status-banner" style="display: none;">
+                        <i id="statusIcon" class="fa-solid fa-circle-info fa-lg"></i>
+                        <span id="statusText">جاري فحص حالة البيانات...</span>
+                    </div>
+
+                    <form onsubmit="confirmSubmitProfile(event)">
+                        <div class="grid-forms">
+                            <div class="form-group">
+                                <label>الاسم واللقب الكامل</label>
+                                <input type="text" id="fullName" placeholder="أدخل الاسم واللقب" required>
+                            </div>
+                            <div class="form-group">
+                                <label>اللقب الأصلي للزوجة</label>
+                                <input type="text" id="maidenName" placeholder="اللقب الأصلي إن وجد">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ ومكان الميلاد</label>
+                                <input type="text" id="birthInfo" placeholder="مثال: 09 أوت 1994 بوهران">
+                            </div>
+                            <div class="form-group">
+                                <label>الإطار</label>
+                                <div class="input-container">
+                                    <select id="framework" onchange="autoSelectCategory()" required>
+                                        <option value="">-- اختر الإطار --</option>
+                                        <option value="أستاذ التعليم الابتدائي">أستاذ التعليم الابتدائي</option>
+                                        <option value="أستاذ التعليم الابتدائي قسم أول">أستاذ التعليم الابتدائي قسم أول</option>
+                                        <option value="أستاذ التعليم الابتدائي قسم ثان">أستاذ التعليم الابتدائي قسم ثان</option>
+                                        <option value="أستاذ مميز">أستاذ مميز</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الصنف (تلقائي)</label>
+                                <div class="input-container">
+                                    <select id="category" required disabled>
+                                        <option value="">-- يحدد تلقائياً --</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الدرجة الحالية</label>
+                                <div class="input-container">
+                                    <select id="grade" required>
+                                        <option value="">-- اختر الدرجة --</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ السريان</label>
+                                <input type="date" id="effectiveDate">
+                            </div>
+                            <div class="form-group">
+                                <label>نقطة التفتيش</label>
+                                <input type="number" id="inspectionScore" step="0.25" min="0" max="20" placeholder="مثال: 15.5">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ آخر تفتيش</label>
+                                <input type="date" id="lastInspectionDate">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ آخر زيارة توجيهية</label>
+                                <input type="date" id="lastGuidanceVisitDate">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ أول تعيين</label>
+                                <input type="date" id="firstAppointmentDate">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ التثبيت</label>
+                                <input type="date" id="confirmationDate">
+                            </div>
+                            <div class="form-group">
+                                <label>الشهادة والمؤهل العلمي</label>
+                                <input type="text" id="degreeSubject" placeholder="مثال: ليسانس لغة عربية">
+                            </div>
+                            <div class="form-group">
+                                <label>القسم المسند حالياً</label>
+                                <div class="input-container">
+                                    <select id="assignedClass" required>
+                                        <option value="">-- اختر القسم --</option>
+                                        <option value="التحضيري">التحضيري</option>
+                                        <option value="السنة الأولى">السنة الأولى</option>
+                                        <option value="السنة الثانية">السنة الثانية</option>
+                                        <option value="السنة الثالثة">السنة الثالثة</option>
+                                        <option value="السنة الرابعة">السنة الرابعة</option>
+                                        <option value="السنة الخامسة">السنة الخامسة</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 25px;">
+                            <button type="submit" id="saveBtn" class="btn btn-submit">
+                                <i class="fa-solid fa-paper-plane"></i> إرسال البيانات للمراجعة
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="chatTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-comments"></i> مراسلة مدير المدرسة</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="loadTeacherChat()"><i class="fa-solid fa-rotate-right"></i> تحديث</button>
+                    </div>
+                    
+                    <div class="chat-box" id="teacherChatBox">
+                        <div style="text-align: center; color: var(--muted); margin-top: 100px; font-weight: 700;">لا توجد رسائل سابقة.</div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1; margin: 0;">
+                            <input type="text" id="teacherChatMessage" placeholder="اكتب رسالتك لمدير المدرسة...">
+                        </div>
+                        <button class="btn btn-submit" style="width: auto;" onclick="sendTeacherMessage()">
+                            <i class="fa-solid fa-paper-plane"></i> إرسال
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+<script>
+    const SCRIPT_URL = localStorage.getItem("currentScriptUrl");
+    const currentDistrictName = localStorage.getItem("currentDistrictName");
+
+    if (!SCRIPT_URL) {
+        window.location.href = "index.html";
+    }
+
+    let currentUsername = "";
+    let directorUsername = "";
+
+    const categoryMapping = {
+        "أستاذ التعليم الابتدائي": "12",
+        "أستاذ التعليم الابتدائي قسم أول": "13",
+        "أستاذ التعليم الابتدائي قسم ثان": "14",
+        "أستاذ مميز": "15"
+    };
+
+    function autoSelectCategory() {
+        const frameworkVal = document.getElementById("framework").value;
+        document.getElementById("category").value = categoryMapping[frameworkVal] || "";
+        document.getElementById("category").dispatchEvent(new Event('change'));
+    }
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+
+        if (tabId === 'chatTab') {
+            loadTeacherChat();
+        }
+    }
+
+    function showModal(title, message, confirmCallback) {
+        const modal = document.getElementById("customModal");
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalMessage").textContent = message;
+        
+        const confirmBtn = document.getElementById("modalConfirmBtn");
+        const newBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+        
+        newBtn.onclick = function() {
+            closeModal();
+            confirmCallback();
+        };
+
+        modal.classList.add("active");
+    }
+
+    function closeModal() {
+        document.getElementById("customModal").classList.remove("active");
+    }
+
+    function formatDateInput(rawDate) {
+        if (!rawDate || rawDate === '-') return '';
+        const d = new Date(rawDate);
+        if (isNaN(d.getTime())) return '';
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+    }
+
+    window.onload = function() {
+        const session = JSON.parse(localStorage.getItem("userSession"));
+        if (!session || session.role !== "teacher") {
+            window.location.href = "login.html";
+        } else {
+            currentUsername = session.username;
+            document.getElementById("teacherTitle").innerHTML = "<i class='fa-solid fa-user'></i> الأستاذ: " + currentUsername;
+            
+            if (currentDistrictName) {
+                document.getElementById("districtBadgeTitle").textContent = currentDistrictName;
+            }
+
+            loadTeacherProfile();
+            setInterval(checkNewMessages, 10000);
+        }
+    };
+
+    async function loadTeacherProfile() {
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getTeacherProfile", username: currentUsername })
+            });
+            const result = await response.json();
+
+            if (result.status === "success" && result.data) {
+                const t = result.data;
+                document.getElementById("schoolTitle").innerHTML = "<i class='fa-solid fa-school'></i> المدرسة: " + (t.schoolName || "غير مسند");
+                directorUsername = t.schoolDirectorUsername || "";
+
+                document.getElementById("fullName").value = t.fullName || "";
+                document.getElementById("maidenName").value = t.maidenName || "";
+                document.getElementById("birthInfo").value = t.birthInfo || "";
+                document.getElementById("framework").value = t.framework || "";
+                document.getElementById("framework").dispatchEvent(new Event('change'));
+                autoSelectCategory();
+                document.getElementById("grade").value = t.grade || "";
+                document.getElementById("grade").dispatchEvent(new Event('change'));
+                document.getElementById("effectiveDate").value = formatDateInput(t.effectiveDate);
+                document.getElementById("inspectionScore").value = t.inspectionScore || "";
+                document.getElementById("lastInspectionDate").value = formatDateInput(t.lastInspectionDate);
+                document.getElementById("lastGuidanceVisitDate").value = formatDateInput(t.lastGuidanceVisitDate);
+                document.getElementById("firstAppointmentDate").value = formatDateInput(t.firstAppointmentDate);
+                document.getElementById("confirmationDate").value = formatDateInput(t.confirmationDate);
+                document.getElementById("degreeSubject").value = t.degreeSubject || "";
+                document.getElementById("assignedClass").value = t.assignedClass || "";
+                document.getElementById("assignedClass").dispatchEvent(new Event('change'));
+
+                const status = t.status || "new";
+                if (status === "pending") {
+                    updateStatusBanner("status-pending", "fa-clock-rotate-left", "بياناتك قيد المراجعة حالياً من طرف مدير المدرسة.");
+                } else if (status === "approved") {
+                    updateStatusBanner("status-approved", "fa-circle-check", "تم اعتماد بياناتك رسمياً من طرف الإدارة.");
+                } else if (status === "rejected") {
+                    updateStatusBanner("status-rejected", "fa-circle-exclamation", "تم رفض البيانات من المدير، يرجى التعديل وإعادة الإرسال.");
+                } else {
+                    updateStatusBanner("none", "", "");
+                }
+                initCustomSelects();
+            }
+        } catch (error) {
+        }
+    }
+
+    function updateStatusBanner(className, iconClass, text) {
+        const banner = document.getElementById("statusBanner");
+        if (className === "none") {
+            banner.style.display = "none";
+            return;
+        }
+        banner.style.display = "flex";
+        banner.className = "status-banner " + className;
+        document.getElementById("statusIcon").className = "fa-solid " + iconClass + " fa-lg";
+        document.getElementById("statusText").textContent = text;
+    }
+
+    function confirmSubmitProfile(e) {
+        e.preventDefault();
+        showModal("إرسال البيانات", "هل أنت متأكد من إرسال هذه البيانات إلى مدير المدرسة للمراجعة والاعتماد؟", function() {
+            executeSubmitProfile();
+        });
+    }
+
+    async function executeSubmitProfile() {
+        const data = {
+            action: "submitTeacherProfile",
+            username: currentUsername,
+            fullName: document.getElementById("fullName").value.trim(),
+            maidenName: document.getElementById("maidenName").value.trim(),
+            birthInfo: document.getElementById("birthInfo").value.trim(),
+            framework: document.getElementById("framework").value,
+            category: document.getElementById("category").value,
+            grade: document.getElementById("grade").value,
+            effectiveDate: document.getElementById("effectiveDate").value,
+            inspectionScore: document.getElementById("inspectionScore").value.trim(),
+            lastInspectionDate: document.getElementById("lastInspectionDate").value,
+            lastGuidanceVisitDate: document.getElementById("lastGuidanceVisitDate").value,
+            firstAppointmentDate: document.getElementById("firstAppointmentDate").value,
+            confirmationDate: document.getElementById("confirmationDate").value,
+            degreeSubject: document.getElementById("degreeSubject").value.trim(),
+            assignedClass: document.getElementById("assignedClass").value
+        };
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+            loadTeacherProfile();
+        }
+    }
+
+    async function loadTeacherChat() {
+        if (!directorUsername) return;
+        const chatBox = document.getElementById("teacherChatBox");
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "getMessages", user1: currentUsername, user2: directorUsername })
+        });
+        const result = await response.json();
+        
+        if (result.status === "success") {
+            const messages = result.messages || [];
+            if (messages.length === 0) {
+                chatBox.innerHTML = '<div style="text-align: center; color: var(--muted); margin-top: 100px; font-weight: 700;">لا توجد رسائل سابقة.</div>';
+            } else {
+                chatBox.innerHTML = messages.map(m => `
+                    <div class="chat-message ${m.sender === currentUsername ? 'sent' : 'received'}">
+                        <div>${m.text}</div>
+                    </div>
+                `).join("");
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    }
+
+    async function sendTeacherMessage() {
+        if (!directorUsername) return;
+        const msgInput = document.getElementById("teacherChatMessage");
+        const text = msgInput.value.trim();
+        if (!text) return;
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "sendMessage", sender: currentUsername, receiver: directorUsername, message: text })
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+            msgInput.value = "";
+            loadTeacherChat();
+        }
+    }
+
+    async function checkNewMessages() {
+        if (!directorUsername) return;
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getMessages", user1: currentUsername, user2: directorUsername })
+            });
+            const result = await response.json();
+            if (result.status === "success" && result.messages) {
+                const count = result.messages.length;
+                const badge = document.getElementById("chatNotificationBadge");
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = "inline-block";
+                    } else {
+                        badge.style.display = "none";
+                    }
+                }
+            }
+        } catch (e) {}
+    }
+
+    function logout() {
+        localStorage.removeItem("userSession");
+        window.location.href = "index.html";
+    }
+</script>
+
+<script>
+    function initCustomSelects() {
+        const containers = document.querySelectorAll('.input-container');
+
+        containers.forEach(container => {
+            if (container.querySelector('.custom-select-ui')) return;
+            const select = container.querySelector('select');
+            if (!select) return;
+
+            const customSelect = document.createElement('div');
+            customSelect.className = 'custom-select-ui';
+            
+            const selectedText = document.createElement('span');
+            selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+            customSelect.appendChild(selectedText);
+
+            const optionsList = document.createElement('div');
+            optionsList.className = 'custom-options-list';
+
+            container.appendChild(customSelect);
+            container.appendChild(optionsList);
+
+            const renderOptions = () => {
+                optionsList.innerHTML = '';
+                Array.from(select.options).forEach((option, index) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'custom-option';
+                    if (option.disabled || option.value === "") optDiv.classList.add('disabled');
+                    optDiv.textContent = option.text;
+                    
+                    optDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (option.disabled || option.value === "") return;
+                        
+                        select.selectedIndex = index;
+                        selectedText.textContent = option.text;
+                        optionsList.classList.remove('show');
+                        customSelect.classList.remove('active');
+                        
+                        document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+                            if(g.style.zIndex === '999') g.style.zIndex = '';
+                        });
+                        
+                        select.dispatchEvent(new Event('change'));
+                    });
+                    optionsList.appendChild(optDiv);
+                });
+            };
+
+            const observer = new MutationObserver(() => {
+                renderOptions();
+                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+                if (select.disabled) {
+                    container.classList.add('disabled');
+                } else {
+                    container.classList.remove('disabled');
+                }
+            });
+            
+            observer.observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+
+            renderOptions();
+            if (select.disabled) container.classList.add('disabled');
+
+            customSelect.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (select.disabled) return;
+                
+                const isOpen = optionsList.classList.contains('show');
+                
+                document.querySelectorAll('.custom-options-list').forEach(l => l.classList.remove('show'));
+                document.querySelectorAll('.custom-select-ui').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+                    if(g.style.zIndex === '999') g.style.zIndex = '';
+                });
+                
+                if (!isOpen) {
+                    optionsList.classList.add('show');
+                    customSelect.classList.add('active');
+                    const group = container.closest('td') || container.closest('.form-group') || container;
+                    group.style.zIndex = '999';
+                }
+            });
+
+            select.addEventListener('change', () => {
+                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initCustomSelects();
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-options-list').forEach(l => l.classList.remove('show'));
+        document.querySelectorAll('.custom-select-ui').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+            if(g.style.zIndex === '999') g.style.zIndex = '';
+        });
+    });
+</script>
+</body>
+</html>
