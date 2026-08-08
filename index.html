@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النظام الرقمي لمتابعة الوضعية الإدارية للأساتذة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            background-color: #f8fafc;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        .split-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .form-side {
+            width: 45%;
+            background: #ffffff;
+            padding: 5% 8%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            box-shadow: -15px 0 40px rgba(0, 0, 0, 0.04);
+        }
+
+        .presentation-side {
+            width: 55%;
+            position: relative;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+            animation: drift 15s infinite alternate ease-in-out;
+        }
+
+        .shape-a {
+            width: 600px;
+            height: 600px;
+            top: -10%;
+            right: -20%;
+        }
+
+        .shape-b {
+            width: 450px;
+            height: 450px;
+            bottom: -15%;
+            left: 5%;
+            animation-delay: -5s;
+            animation-duration: 20s;
+        }
+
+        @keyframes drift {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            100% { transform: translateY(60px) rotate(45deg) scale(1.05); }
+        }
+
+        .presentation-content {
+            z-index: 1;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            max-width: 85%;
+            animation: floatingPanel 6s ease-in-out infinite;
+        }
+
+        @keyframes floatingPanel {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .presentation-icon {
+            font-size: 80px;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+            display: inline-block;
+            filter: drop-shadow(0 10px 15px rgba(59, 130, 246, 0.2));
+            animation: pulseIcon 3s infinite alternate;
+        }
+
+        @keyframes pulseIcon {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+
+        .presentation-content h1 {
+            font-size: 34px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+            line-height: 1.4;
+        }
+
+        .presentation-content p {
+            font-size: 18px;
+            color: #475569;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .brand-header {
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: slideInRight 0.8s ease-out forwards;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #f0f9ff;
+            color: #0284c7;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 14px;
+            margin-bottom: 25px;
+            border: 1px solid #e0f2fe;
+        }
+
+        .brand-header h2 {
+            font-size: 30px;
+            font-weight: 900;
+            line-height: 1.4;
+            color: #0f172a;
+        }
+
+        .form-group {
+            margin-bottom: 35px;
+            opacity: 0;
+            transform: translateX(30px);
+            animation: slideInRight 0.8s ease-out forwards;
+        }
+
+        .form-group:nth-child(2) { animation-delay: 0.15s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+
+        .form-group label {
+            display: block;
+            font-size: 15px;
+            font-weight: 800;
+            color: #64748b;
+            margin-bottom: 12px;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .form-group:focus-within label {
+            color: #3b82f6;
+            transform: translateX(-5px);
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-container::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #cbd5e1;
+            pointer-events: none;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), color 0.3s;
+        }
+
+        .form-group:focus-within .input-container::after {
+            transform: translateY(-50%) rotate(180deg);
+            color: #3b82f6;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 15px 0 15px 35px;
+            border: none;
+            border-bottom: 2px solid #e2e8f0;
+            background: transparent;
+            font-size: 16px;
+            color: #0f172a;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .line-indicator {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            height: 2px;
+            width: 0;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .form-group:focus-within .line-indicator {
+            width: 100%;
+        }
+
+        .form-group select:disabled {
+            color: #94a3b8;
+            border-bottom-color: #f1f5f9;
+            cursor: not-allowed;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #3b82f6;
+            color: #ffffff;
+            border: none;
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            opacity: 0;
+            animation: slideInRight 0.8s 0.45s ease-out forwards;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-submit i {
+            background: rgba(255, 255, 255, 0.25);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            transition: all 0.4s;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: #2563eb;
+            box-shadow: 0 20px 30px -5px rgba(37, 99, 235, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .btn-submit:hover:not(:disabled) i {
+            transform: translateX(-6px);
+            background: #ffffff;
+            color: #2563eb;
+        }
+
+        .btn-submit:disabled {
+            background: #cbd5e1;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .contact-footer {
+            margin-top: auto;
+            padding-top: 50px;
+            font-size: 14px;
+            color: #64748b;
+            opacity: 0;
+            animation: fadeIn 1s 0.8s ease-out forwards;
+        }
+
+        .contact-footer a {
+            color: #0f172a;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 10px 18px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .contact-footer a:hover {
+            background: #e0f2fe;
+            color: #0284c7;
+            transform: translateX(-5px);
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 900px) {
+            .split-layout { flex-direction: column; }
+            .presentation-side { width: 100%; min-height: 45vh; }
+            .form-side { width: 100%; padding: 45px 30px; box-shadow: none; border-radius: 35px 35px 0 0; margin-top: -35px; }
+            .presentation-content h1 { font-size: 26px; }
+            .brand-header { margin-bottom: 35px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="split-layout">
+        
+        <div class="form-side">
+            <div class="brand-header">
+                <div class="brand-badge">
+                    <i class="fa-solid fa-layer-group"></i>
+                    الولوج للنظام
+                </div>
+                <h2>تحديد مسار العمل الخاص بك للبدء.</h2>
+            </div>
+
+            <div class="form-group">
+                <label for="stateSelect">الولاية التابع لها</label>
+                <div class="input-container">
+                    <select id="stateSelect">
+                        <option value="">-- جاري تحميل القائمة --</option>
+                    </select>
+                    <div class="line-indicator"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="districtSelect">المقاطعة البيداغوجية المستهدفة</label>
+                <div class="input-container">
+                    <select id="districtSelect" disabled>
+                        <option value="">-- يرجى تحديد الولاية أولاً --</option>
+                    </select>
+                    <div class="line-indicator"></div>
+                </div>
+            </div>
+
+            <button class="btn-submit" id="enterBtn" onclick="goToDistrict()" disabled>
+                <span>متابعة تسجيل الدخول</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <div class="contact-footer">
+                هل تواجه مشكلة أو ترغب بإضافة مقاطعة؟<br>
+                <a href="mailto:zoheir.akil.dz@gmail.com">
+                    <i class="fa-solid fa-envelope"></i> zoheir.akil.dz@gmail.com
+                </a>
+            </div>
+        </div>
+
+        <div class="presentation-side">
+            <div class="floating-shape shape-a"></div>
+            <div class="floating-shape shape-b"></div>
+            
+            <div class="presentation-content">
+                <i class="fa-solid fa-chart-pie presentation-icon"></i>
+                <h1>النظام الرقمي لمتابعة الوضعية الإدارية للأساتذة</h1>
+                <p>نظام متكامل يتيح للأساتذة والمديرين والمفتشين إدارة الملفات ومتابعة الوضعية الإدارية بمرونة وسهولة فائقة.</p>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    const MAIN_PORTAL_URL = "https://script.google.com/macros/s/AKfycbxpMWiDgT8pgT_jkdDmP9mwfLZD1Wkaz63jWZAxy8iyk5maJNZCzZnQp3eS4jPEBIjshQ/exec";
+    
+    let globalPortalData = {};
+    
+    const stateSelect = document.getElementById('stateSelect');
+    const districtSelect = document.getElementById('districtSelect');
+    const enterBtn = document.getElementById('enterBtn');
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetch(`${MAIN_PORTAL_URL}?action=getPortalData`);
+            const result = await response.json();
+            
+            if (result.status === "success" && result.data) {
+                globalPortalData = result.data;
+                stateSelect.innerHTML = '<option value="">-- اختر الولاية --</option>';
+                Object.keys(globalPortalData).forEach(state => {
+                    stateSelect.innerHTML += `<option value="${state}">${state}</option>`;
+                });
+            } else {
+                stateSelect.innerHTML = '<option value="">لا توجد ولايات مسجلة</option>';
+            }
+        } catch (error) {
+            stateSelect.innerHTML = '<option value="">خطأ في الاتصال بالنظام المركزي</option>';
+        }
+    });
+
+    stateSelect.addEventListener('change', function() {
+        const selectedState = this.value;
+        districtSelect.innerHTML = '<option value="">-- اختر المقاطعة --</option>';
+        districtSelect.disabled = true;
+        enterBtn.disabled = true;
+        
+        if (selectedState && globalPortalData[selectedState]) {
+            districtSelect.disabled = false;
+            globalPortalData[selectedState].forEach(district => {
+                districtSelect.innerHTML += `<option value="${district}">${district}</option>`;
+            });
+        }
+    });
+
+    districtSelect.addEventListener('change', function() {
+        if (this.value) {
+            enterBtn.disabled = false;
+        } else {
+            enterBtn.disabled = true;
+        }
+    });
+
+    async function goToDistrict() {
+        const districtName = districtSelect.value;
+        if (!districtName) return;
+        
+        enterBtn.disabled = true;
+        enterBtn.innerHTML = '<span>جاري التحميل...</span><i class="fa-solid fa-spinner fa-spin"></i>';
+        
+        try {
+            const response = await fetch(`${MAIN_PORTAL_URL}?action=getScriptUrl&district=${encodeURIComponent(districtName)}`);
+            const result = await response.json();
+            
+            if (result.status === "success" && result.scriptUrl) {
+                localStorage.setItem("currentScriptUrl", result.scriptUrl);
+                localStorage.setItem("currentDistrictName", districtName);
+                window.location.href = "login.html";
+            } else {
+                alert("خطأ: لم يتم العثور على الرابط الخاص بهذه المقاطعة.");
+                enterBtn.disabled = false;
+                enterBtn.innerHTML = '<span>متابعة تسجيل الدخول</span><i class="fa-solid fa-arrow-left"></i>';
+            }
+        } catch (error) {
+            alert("حدث خطأ أثناء الاتصال بالنظام المركزي.");
+            enterBtn.disabled = false;
+            enterBtn.innerHTML = '<span>متابعة تسجيل الدخول</span><i class="fa-solid fa-arrow-left"></i>';
+        }
+    }
+</script>
+</body>
+</html>
