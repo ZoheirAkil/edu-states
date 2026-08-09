@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - مدير المدرسة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --ink: #12172b;
+            --muted: #6b7280;
+            --line: #e6e8f0;
+            --card: #ffffff;
+            --accent: #3862f2;
+            --accent-soft: #eaefff;
+            --accent-dark: #2b4fd6;
+            --panel-1: #1c2a6b;
+            --panel-2: #0d1338;
+            --bg-body: #f8fafc;
+        }
+
+        * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; outline: none; }
+        
+        body {
+            background: var(--bg-body);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(155deg, var(--panel-1), var(--panel-2));
+            box-shadow: -15px 0 40px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 25px;
+            position: fixed;
+            height: 100vh;
+            right: 0;
+            top: 0;
+            z-index: 50;
+            overflow-y: auto;
+            color: #ffffff;
+        }
+
+        .main-content {
+            margin-right: 320px;
+            flex: 1;
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            width: calc(100% - 320px);
+        }
+
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 98, 242, 0.08), transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .shape-a { width: 600px; height: 600px; top: -10%; left: -10%; }
+        .shape-b { width: 450px; height: 450px; bottom: -15%; right: 20%; }
+
+        .brand-header { margin-bottom: 25px; }
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #38bdf8;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12.5px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .brand-header h2 { font-size: 24px; font-weight: 900; line-height: 1.4; color: #ffffff; margin-bottom: 6px; }
+        .district-badge { font-size: 14px; color: rgba(255,255,255,0.65); font-weight: 600; margin-bottom: 12px; }
+
+        .school-info-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 25px;
+        }
+        .school-info-box h4 { font-size: 14px; font-weight: 800; color: #ffffff; margin-bottom: 4px; line-height: 1.4; }
+        .school-info-box p { font-size: 12.5px; font-weight: 700; color: #38bdf8; }
+
+        .tab-menu { display: flex; flex-direction: column; gap: 10px; margin-bottom: auto; }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 14px;
+            position: relative;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .tab-btn i { font-size: 18px; width: 22px; text-align: center; }
+        .tab-btn:hover { background: rgba(255,255,255,0.06); color: #ffffff; transform: translateX(-4px); }
+        .tab-btn.active {
+            background: var(--card);
+            color: var(--accent);
+            box-shadow: -5px 10px 20px rgba(0,0,0,0.1);
+            transform: translateX(-6px);
+            border-left: 4px solid var(--accent);
+        }
+        .tab-btn.active i { color: var(--accent); }
+
+        .notification-badge {
+            position: absolute; top: 12px; left: 15px; background-color: #ef4444; color: white;
+            border-radius: 50px; padding: 2px 8px; font-size: 11px; font-weight: 900; display: none;
+        }
+
+        .sidebar-actions { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-logout {
+            background: #dc2626;
+            color: #ffffff;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-logout i { font-size: 18px; width: 22px; text-align: center; }
+        .btn-logout:hover { background: #b91c1c; transform: translateX(-4px); }
+
+        .tab-content { display: none; animation: riseIn 0.5s ease forwards; }
+        .tab-content.active { display: block; }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--line);
+            box-shadow: 0 10px 30px rgba(18, 23, 43, 0.04);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--line);
+        }
+        .card h3 { font-size: 18px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+
+        .grid-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+
+        .form-group { margin-bottom: 18px; position: relative; z-index: 20; }
+        .form-group label { display: block; font-size: 13.5px; font-weight: 700; color: var(--muted); margin-bottom: 8px; transition: color 0.3s; }
+        .form-group:focus-within label { color: var(--accent); }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            background: #fafbfc;
+            font-size: 14.5px;
+            color: var(--ink);
+            font-weight: 700;
+            transition: all 0.25s;
+        }
+        .form-group input:disabled {
+            background-color: #f1f5f9; cursor: not-allowed; opacity: 0.7; border-color: #e2e8f0;
+        }
+        .form-group input:focus:not(:disabled) { border-color: var(--accent); background: #ffffff; box-shadow: 0 0 0 4px var(--accent-soft); }
+        .form-group input::placeholder { color: #a7abb8; font-weight: 500; font-size: 13px; }
+
+        .input-container { position: relative; }
+
+        .form-group select, .input-container select, td select { display: none !important; }
+
+        .custom-select-ui {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            background: #fafbfc;
+            font-size: 14.5px;
+            color: var(--ink);
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s;
+            user-select: none;
+        }
+
+        .custom-select-ui::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 13px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .custom-select-ui.active { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-soft); }
+        .custom-select-ui.active::after { color: var(--accent); transform: translateY(-50%) rotate(180deg); }
+
+        .input-container.disabled .custom-select-ui { background: #f1f5f9; color: #a7abb8; cursor: not-allowed; border-color: #e2e8f0; }
+        .input-container.disabled .custom-select-ui::after { color: #cbd5e1; }
+
+        .custom-options-list {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            box-shadow: 0 15px 35px -5px rgba(18, 23, 43, 0.1);
+            z-index: 9999;
+            max-height: 220px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-options-list.show { opacity: 1; visibility: visible; transform: translateY(0); }
+
+        .custom-option {
+            padding: 12px 16px;
+            font-size: 14.5px;
+            font-weight: 600;
+            color: var(--ink);
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .custom-option:not(.disabled):hover { background: var(--accent-soft); color: var(--accent); }
+        .custom-option.disabled { color: #a7abb8; cursor: not-allowed; background: transparent; }
+
+        .custom-options-list::-webkit-scrollbar { width: 6px; }
+        .custom-options-list::-webkit-scrollbar-track { background: transparent; }
+        .custom-options-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-options-list::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .form-group:has(.custom-select-ui.active), .input-container:has(.custom-select-ui.active) { z-index: 50; }
+        .table-responsive td { position: relative; }
+        
+        .btn {
+            border: none;
+            padding: 13px 20px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s;
+            position: relative;
+            z-index: 10;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+        .btn-submit, .btn { background: var(--accent); color: #fff; }
+        .btn-success { background: #059669; color: #fff; }
+        .btn-warning { background: #d97706; color: #fff; }
+        .btn-danger { background: #dc2626; color: #fff; }
+        .btn-secondary { background: #64748b; color: #fff; }
+        .btn-sm { padding: 8px 14px; font-size: 12.5px; border-radius: 8px; }
+
+        .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); background: #ffffff; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 14px; }
+        th, td { padding: 15px 18px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+        th { background-color: #f8fafc; color: var(--muted); font-weight: 800; }
+        tr:hover td { background-color: #fcfcfc; }
+
+        .badge-status { padding: 5px 12px; border-radius: 99px; font-size: 11.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; }
+        .status-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .status-approved { background: #d1fae5; color: #059669; border: 1px solid #a7f3d0; }
+        .status-rejected { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .status-new { background: #f1f5f9; color: var(--muted); border: 1px solid var(--line); }
+
+        .chat-box {
+            border: 1.5px solid var(--line);
+            border-radius: 14px;
+            padding: 18px;
+            height: 320px;
+            overflow-y: auto;
+            background-color: #fafbfc;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-message { padding: 12px 16px; border-radius: 14px; max-width: 75%; font-size: 14.5px; font-weight: 600; line-height: 1.5; }
+        .chat-message.sent { background-color: var(--accent); color: white; align-self: flex-start; border-top-right-radius: 4px; }
+        .chat-message.received { background-color: #ffffff; color: var(--ink); align-self: flex-end; border-top-left-radius: 4px; border: 1px solid var(--line); }
+
+        .custom-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 23, 43, 0.5); backdrop-filter: blur(6px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+        }
+        .custom-modal-overlay.active { opacity: 1; visibility: visible; }
+        .custom-modal {
+            background: #ffffff; padding: 35px; border-radius: 20px; width: 100%; max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15); text-align: center; transform: translateY(20px); transition: all 0.3s;
+        }
+        .custom-modal-overlay.active .custom-modal { transform: translateY(0); }
+        .custom-modal h4 { color: var(--ink); font-size: 20px; font-weight: 900; margin-bottom: 12px; }
+        .custom-modal p { color: var(--muted); font-size: 15px; font-weight: 500; margin-bottom: 25px; line-height: 1.6; }
+        .custom-modal-actions { display: flex; justify-content: center; gap: 12px; }
+        .custom-modal-actions .btn { flex: 1; }
+
+        .export-group { display: flex; gap: 10px; }
+        .print-header { display: none; }
+        .print-footer { display: none; }
+
+        @page { size: A4 landscape; margin: 8mm; }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 25px; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; border-radius: 0; }
+            .main-content { margin-right: 0; padding: 25px; width: 100%; }
+            .tab-menu { flex-direction: row; flex-wrap: wrap; width: 100%; justify-content: center; }
+            .tab-btn { padding: 10px 14px; font-size: 13.5px; border-radius: 12px; margin-left: 0; padding-right: 14px; width: auto; justify-content: center; gap: 8px; }
+            .tab-btn.active { border-left: none; border-bottom: 4px solid var(--accent); transform: translateY(-2px); }
+            .sidebar-actions { width: 100%; flex-direction: row; justify-content: center; margin-top: 15px; }
+            .btn-logout { width: auto; padding: 10px 14px; justify-content: center; }
+        }
+
+        @media print {
+            body { background: white !important; color: black !important; display: block !important; -webkit-print-color-adjust: exact; }
+            .sidebar, .tab-menu, .btn, .export-group, .floating-shape, #teacherFormCard, #accountFormCard, #accountsListCard, #chatTab, .card-header { display: none !important; }
+            .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            .card { border: none !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
+            
+            .print-header {
+                display: block !important; width: 100% !important; margin: 0 auto 20px auto !important; padding-bottom: 10px !important; border-bottom: 2px solid #000 !important; text-align: center !important; float: none !important; clear: both !important;
+            }
+            .print-header h3, .print-header h4, .print-header p {
+                display: block !important; width: 100% !important; text-align: center !important; margin-left: auto !important; margin-right: auto !important; float: none !important; color: #000 !important;
+            }
+            .print-header h3 { font-size: 16pt !important; font-weight: bold !important; margin-bottom: 4px !important; }
+            .print-header h4 { font-size: 13pt !important; font-weight: bold !important; margin-bottom: 4px !important; }
+            .print-header p { font-size: 11pt !important; font-weight: bold !important; margin-top: 6px !important; }
+
+            .print-footer {
+                display: block !important; margin-top: 30px !important; text-align: left !important; padding-left: 50px !important; font-size: 12pt !important; font-weight: bold !important;
+            }
+
+            .table-responsive { overflow: visible !important; border: none !important; width: 100% !important; }
+            table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #000 !important; font-size: 8.5pt !important; }
+            th, td { border: 1px solid #000 !important; padding: 6px 3px !important; text-align: center !important; white-space: normal !important; word-break: break-word; color: #000 !important; }
+            th { background-color: #f2f2f2 !important; font-weight: bold !important; }
+            
+            th:nth-child(1), td:nth-child(1),
+            th:nth-child(2), td:nth-child(2),
+            th:last-child, td:last-child { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="customModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <h4 id="modalTitle">تأكيد الإجراء</h4>
+            <p id="modalMessage">هل أنت متأكد من تنفيذ هذا الإجراء؟</p>
+            <div class="custom-modal-actions">
+                <button id="modalConfirmBtn" class="btn btn-danger">تأكيد</button>
+                <button onclick="closeModal()" class="btn btn-secondary">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand-header">
+                <div class="brand-badge"><i class="fa-solid fa-school-flag"></i> الإدارة المدرسية</div>
+                <h2>لوحة تحكم المدير</h2>
+                <div class="district-badge" id="districtBadgeTitle">جاري التحميل...</div>
+                <div class="school-info-box">
+                    <h4 id="schoolTitle">جاري التحميل...</h4>
+                    <p id="directorTitle"></p>
+                </div>
+            </div>
+
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="switchTab('accountsTab', this)">
+                    <i class="fa-solid fa-user-gear"></i> إدارة حسابات الأساتذة
+                </button>
+                <button class="tab-btn" onclick="switchTab('teachersTab', this)">
+                    <i class="fa-solid fa-chalkboard-user"></i> متابعة وضعية الأساتذة
+                </button>
+                <button class="tab-btn" onclick="switchTab('chatTab', this)">
+                    <i class="fa-solid fa-envelope-open-text"></i> المراسلات
+                    <span id="chatNotificationBadge" class="notification-badge">0</span>
+                </button>
+            </div>
+
+            <div class="sidebar-actions">
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="floating-shape shape-a"></div>
+            <div class="floating-shape shape-b"></div>
+
+            <div id="accountsTab" class="tab-content active">
+                <div class="card" id="accountFormCard" style="display: none;">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد للأستاذ</h3>
+                    </div>
+                    <form onsubmit="confirmSaveTeacherAccount(event)">
+                        <div class="grid-forms">
+                            <div class="form-group">
+                                <label>اسم المستخدم (للدخول)</label>
+                                <input type="text" id="teacherUsername" placeholder="مثال: ahmed.prof" required>
+                            </div>
+                            <div class="form-group">
+                                <label>كلمة المرور</label>
+                                <input type="text" id="teacherPassword" placeholder="أدخل كلمة المرور" required>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; margin-top: 20px;">
+                            <button type="submit" class="btn btn-submit" style="flex: 1;">
+                                <i class="fa-solid fa-check"></i> إنشاء الحساب وتوليده
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card" id="accountsListCard" style="display: none;">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-users-gear"></i> قائمة حسابات أساتذة المدرسة</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>اسم المستخدم</th>
+                                    <th>كلمة المرور</th>
+                                    <th>حالة الحساب والبيانات</th>
+                                    <th style="width: 200px;">الإجراءات والحظر والتفعيل</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountsTableBody">
+                                <tr><td colspan="4" style="text-align: center;">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="teachersTab" class="tab-content">
+                <div class="card" id="teacherFormCard" style="display: none;">
+                    <div class="card-header">
+                        <h3 id="formTitle"><i class="fa-solid fa-pen-to-square"></i> تعديل بيانات المعلم واعتمادها</h3>
+                    </div>
+                    <form onsubmit="confirmSaveTeacher(event)">
+                        <div class="grid-forms">
+                            <div class="form-group">
+                                <label>اختر حساب الأستاذ (إلزامي للبدء)</label>
+                                <div class="input-container">
+                                    <select id="editTeacherUsername" onchange="toggleTeacherFormInputs()" required>
+                                        <option value="">-- اختر حساب الأستاذ أولاً --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الاسم واللقب الكامل</label>
+                                <input type="text" id="fullName" class="teacher-input" placeholder="أدخل الاسم واللقب" required disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>اللقب الأصلي للزوجة</label>
+                                <input type="text" id="maidenName" class="teacher-input" placeholder="اللقب الأصلي إن وجد" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ ومكان الميلاد</label>
+                                <input type="text" id="birthInfo" class="teacher-input" placeholder="مثال: 09 أوت 1994 بوهران" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>الإطار</label>
+                                <div class="input-container disabled">
+                                    <select id="framework" class="teacher-input" onchange="autoSelectCategory()" required disabled>
+                                        <option value="">-- اختر الإطار --</option>
+                                        <option value="أستاذ التعليم الابتدائي">أستاذ التعليم الابتدائي</option>
+                                        <option value="أستاذ التعليم الابتدائي قسم أول">أستاذ التعليم الابتدائي قسم أول</option>
+                                        <option value="أستاذ التعليم الابتدائي قسم ثان">أستاذ التعليم الابتدائي قسم ثان</option>
+                                        <option value="أستاذ مميز">أستاذ مميز</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الصنف (تلقائي)</label>
+                                <div class="input-container disabled">
+                                    <select id="category" required disabled>
+                                        <option value="">-- يحدد تلقائياً --</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الدرجة</label>
+                                <div class="input-container disabled">
+                                    <select id="grade" class="teacher-input" required disabled>
+                                        <option value="">-- اختر الدرجة --</option>
+                                        <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                                        <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+                                        <option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ السريان</label>
+                                <input type="date" id="effectiveDate" class="teacher-input" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>نقطة التفتيش</label>
+                                <input type="number" id="inspectionScore" class="teacher-input" step="0.25" min="0" max="20" placeholder="مثال: 15.5" oninput="validateScore(this)" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ آخر تفتيش</label>
+                                <input type="date" id="lastInspectionDate" class="teacher-input" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ آخر زيارة توجيهية</label>
+                                <input type="date" id="lastGuidanceVisitDate" class="teacher-input" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ أول تعيين</label>
+                                <input type="date" id="firstAppointmentDate" class="teacher-input" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ التثبيت</label>
+                                <input type="date" id="confirmationDate" class="teacher-input" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>الشهادة والمؤهل العلمي</label>
+                                <input type="text" id="degreeSubject" class="teacher-input" placeholder="مثال: ليسانس لغة عربية" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>القسم المسند</label>
+                                <div class="input-container disabled">
+                                    <select id="assignedClass" class="teacher-input" required disabled>
+                                        <option value="">-- اختر القسم --</option>
+                                        <option value="التحضيري">التحضيري</option>
+                                        <option value="السنة الأولى">السنة الأولى</option>
+                                        <option value="السنة الثانية">السنة الثانية</option>
+                                        <option value="السنة الثالثة">السنة الثالثة</option>
+                                        <option value="السنة الرابعة">السنة الرابعة</option>
+                                        <option value="السنة الخامسة">السنة الخامسة</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 15px; margin-top: 25px;">
+                            <button type="submit" id="saveBtn" class="btn btn-submit" style="flex: 1;" disabled>
+                                <i class="fa-solid fa-check"></i> تحديث واعتماد البيانات
+                            </button>
+                            <button type="button" id="cancelBtn" class="btn btn-warning" style="display:none;" onclick="resetTeacherForm()">
+                                <i class="fa-solid fa-xmark"></i> إلغاء التعديل
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card" id="teachersListCard" style="display: none;">
+                    <div class="print-header">
+                        <h3>الجمهورية الجزائرية الديمقراطية الشعبية</h3>
+                        <h4>وزارة التربية الوطنية</h4>
+                        <p id="printSchoolInfo"></p>
+                    </div>
+
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-list-check"></i> الوضعية الإدارية للأساتذة ومراجعة البيانات</h3>
+                        <div class="export-group">
+                            <button class="btn btn-success btn-sm" onclick="exportDirectorTeachersExcel()"><i class="fa-solid fa-file-excel"></i> تصدير</button>
+                            <button class="btn btn-secondary btn-sm" onclick="printDirectorTeachersPDF()"><i class="fa-solid fa-print"></i> طباعة</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>حالة البيانات</th>
+                                    <th>اسم المستخدم</th>
+                                    <th>الاسم واللقب</th>
+                                    <th>اللقب الأصلي للزوجة</th>
+                                    <th>تاريخ ومكان الميلاد</th>
+                                    <th>الإطار</th>
+                                    <th>الصنف</th>
+                                    <th>الدرجة</th>
+                                    <th>تاريخ السريان</th>
+                                    <th>نقطة التفتيش</th>
+                                    <th>تاريخ آخر تفتيش</th>
+                                    <th>تاريخ آخر زيارة توجيهية</th>
+                                    <th>تاريخ أول تعيين</th>
+                                    <th>تاريخ التثبيت</th>
+                                    <th>الشهادة والمؤهل العلمى</th>
+                                    <th>القسم المسند</th>
+                                    <th>الإجراءات ومراجعة المدير</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teachersTableBody">
+                                <tr><td colspan="17" style="text-align: center;">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="print-footer">
+                        <div>إمضاء وختم مدير المدرسة</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chatTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-comments"></i> المراسلة المباشرة</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary btn-sm" onclick="loadDirectorChat()"><i class="fa-solid fa-rotate-right"></i> تحديث</button>
+                            <button class="btn btn-danger btn-sm" onclick="confirmDeleteDirectorChat()"><i class="fa-solid fa-trash"></i> حذف المحادثة</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>اختر جهة المراسلة</label>
+                        <div class="input-container">
+                            <select id="chatTargetSelect" onchange="loadDirectorChat()">
+                                <option value="admin">مدير النظام (الأدمن)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chat-box" id="directorChatBox">
+                        <div style="text-align: center; color: var(--muted); margin-top: 100px; font-weight: 700;">لا توجد رسائل سابقة.</div>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1; margin: 0;">
+                            <input type="text" id="directorChatMessage" placeholder="اكتب رسالتك هنا...">
+                        </div>
+                        <button class="btn btn-submit" onclick="sendDirectorMessage()">
+                            <i class="fa-solid fa-paper-plane"></i> إرسال
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+<script>
+    const SCRIPT_URL = localStorage.getItem("currentScriptUrl");
+    const currentDistrictName = localStorage.getItem("currentDistrictName");
+
+    if (!SCRIPT_URL) {
+        window.location.href = "index.html";
+    }
+
+    let currentSchool = null;
+    let currentUsername = "";
+    let globalTeachersList = [];
+    let globalDistrictName = currentDistrictName || "";
+
+    const dzMonths = [
+        "جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان",
+        "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+    ];
+
+    const categoryMapping = {
+        "أستاذ التعليم الابتدائي": "12",
+        "أستاذ التعليم الابتدائي قسم أول": "13",
+        "أستاذ التعليم الابتدائي قسم ثان": "14",
+        "أستاذ مميز": "15"
+    };
+
+    function fetchDistrictName() {
+        if (currentDistrictName) {
+            globalDistrictName = currentDistrictName;
+            document.getElementById("districtBadgeTitle").textContent = globalDistrictName;
+        }
+    }
+
+    function autoSelectCategory() {
+        const frameworkVal = document.getElementById("framework").value;
+        document.getElementById("category").value = categoryMapping[frameworkVal] || "";
+        document.getElementById("category").dispatchEvent(new Event('change'));
+    }
+
+    function validateScore(input) {
+        let val = parseFloat(input.value);
+        if (val > 20) input.value = 20;
+        if (val < 0) input.value = 0;
+    }
+
+    function toggleTeacherFormInputs() {
+        const selectedVal = document.getElementById("editTeacherUsername").value;
+        const inputs = document.querySelectorAll(".teacher-input");
+        const saveBtn = document.getElementById("saveBtn");
+
+        if (selectedVal !== "") {
+            inputs.forEach(input => {
+                input.disabled = false;
+                input.dispatchEvent(new Event('change'));
+            });
+            saveBtn.disabled = false;
+        } else {
+            inputs.forEach(input => {
+                input.disabled = true;
+                if(input.tagName === "SELECT") input.value = "";
+                else input.value = "";
+                input.dispatchEvent(new Event('change'));
+            });
+            document.getElementById("category").value = "";
+            document.getElementById("category").dispatchEvent(new Event('change'));
+            saveBtn.disabled = true;
+        }
+    }
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+
+        if (tabId === 'chatTab') {
+            loadDirectorChat();
+        }
+    }
+
+    function showModal(title, message, confirmCallback, btnClass = 'btn-danger') {
+        const modal = document.getElementById("customModal");
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalMessage").textContent = message;
+        
+        const confirmBtn = document.getElementById("modalConfirmBtn");
+        confirmBtn.className = `btn ${btnClass}`;
+        confirmBtn.textContent = 'تأكيد';
+        
+        const newBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+        
+        newBtn.onclick = function() {
+            closeModal();
+            confirmCallback();
+        };
+
+        modal.classList.add("active");
+    }
+
+    function closeModal() {
+        document.getElementById("customModal").classList.remove("active");
+    }
+
+    function formatDateDisplay(rawDate) {
+        if (!rawDate) return '-';
+        const d = new Date(rawDate);
+        if (isNaN(d.getTime())) return rawDate;
+        
+        const day = d.getUTCDate();
+        const monthName = dzMonths[d.getUTCMonth()];
+        const year = d.getUTCFullYear();
+        
+        return `${day} ${monthName} ${year}`;
+    }
+
+    function formatDateInput(rawDate) {
+        if (!rawDate) return '';
+        const d = new Date(rawDate);
+        if (isNaN(d.getTime())) return '';
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+    }
+
+    window.onload = function() {
+        const session = JSON.parse(localStorage.getItem("userSession"));
+        if (!session || session.role !== "director") {
+            window.location.href = "login.html";
+        } else {
+            currentUsername = session.username;
+            document.getElementById("directorTitle").innerHTML = "<i class='fa-solid fa-user-tie'></i> حساب المدير: " + currentUsername;
+            fetchDistrictName();
+            loadDirectorData();
+            setInterval(checkPendingMessages, 10000);
+        }
+    };
+
+    async function loadDirectorData() {
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getDirectorData", username: currentUsername })
+            });
+            const result = await response.json();
+
+            if (result.status === "success") {
+                if (result.school) {
+                    currentSchool = result.school;
+                    globalTeachersList = result.teachers;
+                    document.getElementById("schoolTitle").innerHTML = "<i class='fa-solid fa-school'></i> مدرسة: " + currentSchool.name;
+                    document.getElementById("printSchoolInfo").textContent = "المقاطعة البيداغوجية: " + globalDistrictName + " | مدرسة: " + currentSchool.name + " | جدول الوضعية الإدارية للأساتذة";
+                    
+                    document.getElementById("accountFormCard").style.display = "block";
+                    document.getElementById("accountsListCard").style.display = "block";
+                    document.getElementById("teacherFormCard").style.display = "block";
+                    document.getElementById("teachersListCard").style.display = "block";
+
+                    renderAccounts(result.teachers);
+                    renderTeachers(result.teachers);
+                    populateTeacherUsernameSelect(result.teachers);
+                }
+
+                populateChatTargets(result.inspectors || [], result.teachers || []);
+            }
+        } catch (error) {
+        }
+    }
+
+    function populateTeacherUsernameSelect(teachers) {
+        const select = document.getElementById("editTeacherUsername");
+        let html = '<option value="">-- اختر حساب الأستاذ أولاً --</option>';
+        teachers.forEach(t => {
+            if (t.teacherUsername) {
+                html += `<option value="${t.teacherUsername}">${t.teacherUsername} (${t.fullName || 'بدون اسم مسجل'})</option>`;
+            }
+        });
+        select.innerHTML = html;
+        select.dispatchEvent(new Event('change'));
+        toggleTeacherFormInputs();
+        initCustomSelects();
+    }
+
+    function populateChatTargets(inspectors, teachers) {
+        const select = document.getElementById("chatTargetSelect");
+        let html = '<option value="admin">مدير النظام (الأدمن)</option>';
+        
+        inspectors.forEach(insp => {
+            html += `<option value="${insp}">المفتش (${insp})</option>`;
+        });
+
+        teachers.forEach(t => {
+            if (t.teacherUsername) {
+                html += `<option value="${t.teacherUsername}">الأستاذ: ${t.fullName || t.teacherUsername}</option>`;
+            }
+        });
+
+        select.innerHTML = html;
+        select.dispatchEvent(new Event('change'));
+        initCustomSelects();
+    }
+
+    function renderAccounts(teachers) {
+        const tbody = document.getElementById("accountsTableBody");
+        if (teachers.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='4' style='text-align: center;'>لا توجد حسابات أساتذة مسجلة.</td></tr>";
+            return;
+        }
+        tbody.innerHTML = teachers.map(t => {
+            let statusBadge = "";
+            if (t.status === 'pending') statusBadge = '<span class="badge-status status-pending">قيد المراجعة</span>';
+            else if (t.status === 'approved') statusBadge = '<span class="badge-status status-approved">معتمد</span>';
+            else if (t.status === 'rejected') statusBadge = '<span class="badge-status status-rejected">مرفوض</span>';
+            else if (t.status === 'blocked') statusBadge = '<span class="badge-status status-rejected">محظور</span>';
+            else statusBadge = '<span class="badge-status status-new">جديد (لم يُدخل بياناته)</span>';
+
+            const isBlocked = t.status === 'blocked';
+
+            return `
+            <tr>
+                <td style="direction: ltr; text-align: right;"><b>${t.teacherUsername || '-'}</b></td>
+                <td><code style="background:#f1f5f9; padding:4px 8px; border-radius:6px;">${t.teacherPassword || '-'}</code></td>
+                <td>${statusBadge}</td>
+                <td>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn ${isBlocked ? 'btn-success' : 'btn-danger'} btn-sm" title="${isBlocked ? 'إلغاء الحظر وتفعيل الحساب' : 'حظر الحساب'}" onclick="toggleBlockTeacher('${t.teacherUsername}', '${isBlocked ? 'active' : 'blocked'}')">
+                            <i class="fa-solid ${isBlocked ? 'fa-unlock' : 'fa-ban'}"></i> ${isBlocked ? 'تفعيل' : 'حظر'}
+                        </button>
+                        <button class="btn btn-danger btn-sm" title="حذف" onclick="confirmDeleteTeacher(${t.rowIndex}, '${t.fullName || t.teacherUsername}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }).join("");
+    }
+
+    async function toggleBlockTeacher(username, newStatus) {
+        const actionTitle = newStatus === 'blocked' ? "حظر حساب الأستاذ" : "تفعيل حساب الأستاذ";
+        showModal(actionTitle, `هل أنت متأكد من ${newStatus === 'blocked' ? 'حظر' : 'تفعيل'} حساب الأستاذ (${username})؟`, async function() {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "setTeacherStatusByDirector", targetUsername: username, newStatus: newStatus })
+            });
+            const result = await response.json();
+            if (result.status === "success") {
+                loadDirectorData();
+            }
+        }, newStatus === 'blocked' ? 'btn-danger' : 'btn-success');
+    }
+
+    function renderTeachers(teachers) {
+        const tbody = document.getElementById("teachersTableBody");
+        if (teachers.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='17' style='text-align: center;'>لا يوجد أساتذة مسجلون حتى الآن.</td></tr>";
+            return;
+        }
+        tbody.innerHTML = teachers.map(t => {
+            let statusBadge = "";
+            let reviewBtns = "";
+
+            if (t.status === 'pending') {
+                statusBadge = '<span class="badge-status status-pending"><i class="fa-solid fa-clock"></i> قيد المراجعة</span>';
+                reviewBtns = `
+                    <button class="btn btn-success btn-sm" title="اعتماد" onclick="confirmChangeStatus(${t.rowIndex}, 'approved')"><i class="fa-solid fa-check"></i></button>
+                    <button class="btn btn-danger btn-sm" title="رفض" onclick="confirmChangeStatus(${t.rowIndex}, 'rejected')"><i class="fa-solid fa-xmark"></i></button>
+                `;
+            } else if (t.status === 'approved') {
+                statusBadge = '<span class="badge-status status-approved"><i class="fa-solid fa-check-circle"></i> معتمد</span>';
+            } else if (t.status === 'rejected') {
+                statusBadge = '<span class="badge-status status-rejected"><i class="fa-solid fa-circle-exclamation"></i> مرفوض</span>';
+            } else if (t.status === 'blocked') {
+                statusBadge = '<span class="badge-status status-rejected">محظور</span>';
+            } else {
+                statusBadge = '<span class="badge-status status-new">بانتظار إدخال الأستاذ</span>';
+            }
+
+            return `
+            <tr>
+                <td>${statusBadge}</td>
+                <td style="direction: ltr; text-align: right;"><code>${t.teacherUsername || '-'}</code></td>
+                <td><b>${t.fullName || 'لم يُدخل بعد'}</b></td>
+                <td>${t.maidenName || '-'}</td>
+                <td>${t.birthInfo || '-'}</td>
+                <td>${t.framework || '-'}</td>
+                <td>${t.category || '-'}</td>
+                <td>${t.grade || '-'}</td>
+                <td>${formatDateDisplay(t.effectiveDate)}</td>
+                <td>${t.inspectionScore || '-'}</td>
+                <td>${formatDateDisplay(t.lastInspectionDate)}</td>
+                <td>${formatDateDisplay(t.lastGuidanceVisitDate)}</td>
+                <td>${formatDateDisplay(t.firstAppointmentDate)}</td>
+                <td>${formatDateDisplay(t.confirmationDate)}</td>
+                <td>${t.degreeSubject || '-'}</td>
+                <td>${t.assignedClass || '-'}</td>
+                <td>
+                    <div style="display: flex; gap: 5px;">
+                        ${reviewBtns}
+                        <button class="btn btn-warning btn-sm" title="تعديل" onclick="prepareEditTeacher(${t.rowIndex})"><i class="fa-solid fa-pen"></i></button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }).join("");
+    }
+
+    function confirmSaveTeacherAccount(e) {
+        e.preventDefault();
+        showModal("إنشاء حساب أستاذ", "هل أنت متأكد من إنشاء هذا الحساب وإضافته للمدرسة؟", function() {
+            executeSaveTeacherAccount();
+        }, "btn-submit");
+    }
+
+    async function executeSaveTeacherAccount() {
+        const data = {
+            action: "addTeacherAccount",
+            schoolId: currentSchool.id,
+            username: currentUsername,
+            teacherUsername: document.getElementById("teacherUsername").value.trim(),
+            teacherPassword: document.getElementById("teacherPassword").value.trim()
+        };
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+            document.getElementById("teacherUsername").value = "";
+            document.getElementById("teacherPassword").value = "";
+            loadDirectorData();
+        }
+    }
+
+    function confirmChangeStatus(rowIndex, newStatus) {
+        const actionTitle = newStatus === 'approved' ? "اعتماد البيانات" : "رفض البيانات والتعديلات";
+        const actionMsg = newStatus === 'approved' 
+            ? "هل أنت متأكد من اعتماد هذه البيانات وتثبيتها نهائياً وتمريرها للمفتش؟" 
+            : "هل أنت متأكد من رفض البيانات الجديدة؟ سيؤدي ذلك إلى رفض مسودة الأستاذ وإعادة الحالة إلى مرفوض مع الاحتفاظ بالبيانات الأصلية السابقة دون تغييرها.";
+        const btnClass = newStatus === 'approved' ? 'btn-success' : 'btn-danger';
+
+        showModal(actionTitle, actionMsg, function() {
+            executeChangeStatus(rowIndex, newStatus);
+        }, btnClass);
+    }
+
+    async function executeChangeStatus(rowIndex, newStatus) {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                action: "changeTeacherStatus", 
+                rowIndex: rowIndex, 
+                status: newStatus,
+                discardDraftOnReject: (newStatus === 'rejected')
+            })
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+            loadDirectorData();
+        }
+    }
+
+    function confirmSaveTeacher(e) {
+        e.preventDefault();
+        showModal("تعديل واعتماد البيانات", "هل أنت متأكد من حفظ وتعديل بيانات هذا الأستاذ واعتمادها رسمياً؟", function() {
+            executeSaveTeacher();
+        }, "btn-submit");
+    }
+
+    async function executeSaveTeacher() {
+        const teacherUsernameVal = document.getElementById("editTeacherUsername").value;
+
+        const data = {
+            action: "editTeacherByDirector",
+            schoolId: currentSchool.id,
+            username: currentUsername,
+            teacherUsername: teacherUsernameVal,
+            fullName: document.getElementById("fullName").value.trim(),
+            maidenName: document.getElementById("maidenName").value.trim(),
+            birthInfo: document.getElementById("birthInfo").value.trim(),
+            framework: document.getElementById("framework").value,
+            category: document.getElementById("category").value,
+            grade: document.getElementById("grade").value,
+            effectiveDate: document.getElementById("effectiveDate").value,
+            inspectionScore: document.getElementById("inspectionScore").value.trim(),
+            lastInspectionDate: document.getElementById("lastInspectionDate").value,
+            lastGuidanceVisitDate: document.getElementById("lastGuidanceVisitDate").value,
+            firstAppointmentDate: document.getElementById("firstAppointmentDate").value,
+            confirmationDate: document.getElementById("confirmationDate").value,
+            degreeSubject: document.getElementById("degreeSubject").value.trim(),
+            assignedClass: document.getElementById("assignedClass").value
+        };
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+            resetTeacherForm();
+            loadDirectorData();
+        }
+    }
+
+    function prepareEditTeacher(rowIndex) {
+        const teacher = globalTeachersList.find(t => t.rowIndex === rowIndex);
+        if(!teacher) return;
+
+        showModal("مراجعة وتعديل أستاذ", `هل تريد مراجعة وتعديل بيانات: ${teacher.fullName || teacher.teacherUsername}؟`, function() {
+            document.getElementById("formTitle").innerHTML = "<i class='fa-solid fa-pen'></i> مراجعة وتعديل بيانات المعلم";
+            document.getElementById("editTeacherUsername").value = teacher.teacherUsername || "";
+            document.getElementById("editTeacherUsername").dispatchEvent(new Event('change'));
+            toggleTeacherFormInputs();
+
+            document.getElementById("fullName").value = teacher.fullName || "";
+            document.getElementById("maidenName").value = teacher.maidenName || "";
+            document.getElementById("birthInfo").value = teacher.birthInfo || "";
+            document.getElementById("framework").value = teacher.framework || "";
+            document.getElementById("framework").dispatchEvent(new Event('change'));
+            autoSelectCategory();
+
+            document.getElementById("grade").value = teacher.grade || "";
+            document.getElementById("grade").dispatchEvent(new Event('change'));
+            document.getElementById("effectiveDate").value = formatDateInput(teacher.effectiveDate);
+            document.getElementById("inspectionScore").value = teacher.inspectionScore || "";
+            document.getElementById("lastInspectionDate").value = formatDateInput(teacher.lastInspectionDate);
+            document.getElementById("lastGuidanceVisitDate").value = formatDateInput(teacher.lastGuidanceVisitDate);
+            document.getElementById("firstAppointmentDate").value = formatDateInput(teacher.firstAppointmentDate);
+            document.getElementById("confirmationDate").value = formatDateInput(teacher.confirmationDate);
+            document.getElementById("degreeSubject").value = teacher.degreeSubject || "";
+            document.getElementById("assignedClass").value = teacher.assignedClass || "";
+            document.getElementById("assignedClass").dispatchEvent(new Event('change'));
+
+            document.getElementById("saveBtn").innerHTML = "<i class='fa-solid fa-check'></i> حفظ واعتماد البيانات";
+            document.getElementById("cancelBtn").style.display = "inline-flex";
+            
+            switchTab('teachersTab', document.querySelectorAll('.tab-btn')[1]);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, "btn-warning");
+    }
+
+    function resetTeacherForm() {
+        document.getElementById("formTitle").innerHTML = "<i class='fa-solid fa-pen-to-square'></i> تعديل بيانات المعلم واعتمادها";
+        document.getElementById("editTeacherUsername").value = "";
+        document.getElementById("editTeacherUsername").dispatchEvent(new Event('change'));
+        toggleTeacherFormInputs();
+        document.querySelectorAll("#teacherFormCard input").forEach(input => input.value = "");
+        document.querySelectorAll("#teacherFormCard select").forEach(select => {
+            select.value = "";
+            select.dispatchEvent(new Event('change'));
+        });
+        document.getElementById("saveBtn").innerHTML = "<i class='fa-solid fa-check'></i> تحديث واعتماد البيانات";
+        document.getElementById("cancelBtn").style.display = "none";
+    }
+
+    function confirmDeleteTeacher(rowIndex, teacherName) {
+        showModal("تنبيه الحذف", `هل أنت متأكد من حذف حساب الأستاذ (${teacherName}) نهائياً؟`, function() {
+            executeDeleteTeacher(rowIndex);
+        }, "btn-danger");
+    }
+
+    async function executeDeleteTeacher(rowIndex) {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "deleteTeacher", rowIndex: rowIndex, schoolId: currentSchool.id, username: currentUsername })
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+            loadDirectorData();
+        }
+    }
+
+    async function loadDirectorChat() {
+        const targetUser = document.getElementById("chatTargetSelect").value;
+        const chatBox = document.getElementById("directorChatBox");
+        if(!targetUser) return;
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "getMessages", user1: currentUsername, user2: targetUser })
+        });
+        const result = await response.json();
+        
+        if (result.status === "success") {
+            const messages = result.messages || [];
+            if (messages.length === 0) {
+                chatBox.innerHTML = '<div style="text-align: center; color: #64748b; margin-top: 100px; font-weight: 700;">لا توجد رسائل سابقة.</div>';
+            } else {
+                chatBox.innerHTML = messages.map(m => `
+                    <div class="chat-message ${m.sender === currentUsername ? 'sent' : 'received'}">
+                        <div>${m.text}</div>
+                    </div>
+                `).join("");
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    }
+
+    async function sendDirectorMessage() {
+        const targetUser = document.getElementById("chatTargetSelect").value;
+        const msgInput = document.getElementById("directorChatMessage");
+        const text = msgInput.value.trim();
+
+        if (!targetUser) return;
+        if (!text) return;
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "sendMessage", sender: currentUsername, receiver: targetUser, message: text })
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+            msgInput.value = "";
+            loadDirectorChat();
+        }
+    }
+
+    function confirmDeleteDirectorChat() {
+        const targetUser = document.getElementById("chatTargetSelect").value;
+        if (!targetUser) return;
+        
+        showModal("حذف المحادثة", "هل أنت متأكد من حذف هذه المحادثة بالكامل؟", function() {
+            executeDeleteDirectorChat(targetUser);
+        }, "btn-danger");
+    }
+
+    async function executeDeleteDirectorChat(targetUser) {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "deleteMessages", user1: currentUsername, user2: targetUser })
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+            loadDirectorChat();
+        }
+    }
+
+    async function checkPendingMessages() {
+        const targetUser = document.getElementById("chatTargetSelect") ? document.getElementById("chatTargetSelect").value : "admin";
+        if (!targetUser) return;
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getMessages", user1: currentUsername, user2: targetUser })
+            });
+            const result = await response.json();
+            if (result.status === "success" && result.messages) {
+                const count = result.messages.length;
+                const badge = document.getElementById("chatNotificationBadge");
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = "inline-block";
+                    } else {
+                        badge.style.display = "none";
+                    }
+                }
+            }
+        } catch (e) {}
+    }
+
+    function exportDirectorTeachersExcel() {
+        if (globalTeachersList.length === 0) return;
+        const exportData = globalTeachersList.filter(t => t.status === 'approved').map(t => ({
+            "الاسم واللقب": t.fullName,
+            "اللقب الأصلي للزوجة": t.maidenName || "-",
+            "تاريخ ومكان الميلاد": t.birthInfo || "-",
+            "الإطار": t.framework,
+            "الصنف": t.category,
+            "الدرجة": t.grade,
+            "تاريخ السريان": formatDateDisplay(t.effectiveDate),
+            "نقطة التفتيش": t.inspectionScore || "-",
+            "تاريخ آخر تفتيش": formatDateDisplay(t.lastInspectionDate),
+            "تاريخ آخر زيارة توجيهية": formatDateDisplay(t.lastGuidanceVisitDate),
+            "تاريخ أول تعيين": formatDateDisplay(t.firstAppointmentDate),
+            "تاريخ التثبيت": formatDateDisplay(t.confirmationDate),
+            "الشهادة والمؤهل العلمي": t.degreeSubject || "-",
+            "القسم المسند": t.assignedClass
+        }));
+        
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        const sheetName = currentSchool ? currentSchool.name : "الأساتذة";
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+        XLSX.writeFile(workbook, `الوضعية_الإدارية_${sheetName}.xlsx`);
+    }
+
+    function printDirectorTeachersPDF() {
+        window.print();
+    }
+
+    function logout() {
+        localStorage.removeItem("userSession");
+        window.location.href = "index.html";
+    }
+</script>
+
+<script>
+    function initCustomSelects() {
+        const containers = document.querySelectorAll('.input-container');
+
+        containers.forEach(container => {
+            if (container.querySelector('.custom-select-ui')) return;
+            const select = container.querySelector('select');
+            if (!select) return;
+
+            const customSelect = document.createElement('div');
+            customSelect.className = 'custom-select-ui';
+            
+            const selectedText = document.createElement('span');
+            selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+            customSelect.appendChild(selectedText);
+
+            const optionsList = document.createElement('div');
+            optionsList.className = 'custom-options-list';
+
+            container.appendChild(customSelect);
+            container.appendChild(optionsList);
+
+            const renderOptions = () => {
+                optionsList.innerHTML = '';
+                Array.from(select.options).forEach((option, index) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'custom-option';
+                    if (option.disabled || option.value === "") optDiv.classList.add('disabled');
+                    optDiv.textContent = option.text;
+                    
+                    optDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (option.disabled || option.value === "") return;
+                        
+                        select.selectedIndex = index;
+                        selectedText.textContent = option.text;
+                        optionsList.classList.remove('show');
+                        customSelect.classList.remove('active');
+                        
+                        document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+                            if(g.style.zIndex === '999') g.style.zIndex = '';
+                        });
+                        
+                        select.dispatchEvent(new Event('change'));
+                    });
+                    optionsList.appendChild(optDiv);
+                });
+            };
+
+            const observer = new MutationObserver(() => {
+                renderOptions();
+                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+                if (select.disabled) {
+                    container.classList.add('disabled');
+                } else {
+                    container.classList.remove('disabled');
+                }
+            });
+            
+            observer.observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+
+            renderOptions();
+            if (select.disabled) container.classList.add('disabled');
+
+            customSelect.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (select.disabled) return;
+                
+                const isOpen = optionsList.classList.contains('show');
+                
+                document.querySelectorAll('.custom-options-list').forEach(l => l.classList.remove('show'));
+                document.querySelectorAll('.custom-select-ui').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+                    if(g.style.zIndex === '999') g.style.zIndex = '';
+                });
+                
+                if (!isOpen) {
+                    optionsList.classList.add('show');
+                    customSelect.classList.add('active');
+                    const group = container.closest('td') || container.closest('.form-group') || container;
+                    group.style.zIndex = '999';
+                }
+            });
+
+            select.addEventListener('change', () => {
+                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initCustomSelects();
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-options-list').forEach(l => l.classList.remove('show'));
+        document.querySelectorAll('.custom-select-ui').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+            if(g.style.zIndex === '999') g.style.zIndex = '';
+        });
+    });
+</script>
+</body>
+</html>
