@@ -635,41 +635,51 @@
         .custom-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
         .custom-modal-actions .btn { flex: 1; }
 
-        /* نافذة الحصص التفاعلية للهاتف والكمبيوتر */
-        .custom-tt-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
-            display: none; justify-content: center; align-items: center; z-index: 10000;
-            direction: rtl;
-        }
-        .custom-tt-overlay.active { display: flex; }
-        .custom-tt-modal {
-            background: #ffffff; width: 95%; max-width: 500px; max-height: 90vh;
-            border-radius: 20px; display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-        .custom-tt-header {
-            padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .custom-tt-body { padding: 20px; overflow-y: auto; flex: 1; }
-
-        .native-select-ui {
-            display: block !important;
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border-color);
+        /* الأزرار المخصصة للاختيار (بدون Select) */
+        .selection-pill {
+            padding: 8px 16px;
             border-radius: 12px;
-            background-color: var(--bg-input);
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-main);
-            outline: none;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
         }
-        .native-select-ui:focus {
-            border-color: var(--primary);
+        .selection-pill.active-day {
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
+        }
+        .selection-pill.inactive-day {
             background-color: #ffffff;
+            color: var(--text-sub);
+            border-color: var(--border-color);
         }
+        .selection-pill.inactive-day:hover { background-color: var(--bg-input); }
+
+        .selection-pill.active-period {
+            background-color: #059669;
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(5, 150, 105, 0.2);
+        }
+        .selection-pill.inactive-period {
+            background-color: #ffffff;
+            color: var(--text-sub);
+            border-color: var(--border-color);
+        }
+        .selection-pill.inactive-period:hover { background-color: var(--bg-input); }
+        
+        .selection-pill.active-dur {
+            background-color: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+        .selection-pill.inactive-dur {
+            background-color: #ffffff;
+            color: var(--text-sub);
+            border-color: var(--border-color);
+        }
+        .selection-pill.inactive-dur:hover { background-color: var(--bg-input); }
 
         .pulse-overlay {
             position: fixed;
@@ -722,58 +732,13 @@
             .welcome-hero-card h2 { font-size: 19px; }
             .welcome-hero-card p { max-width: 100%; font-size: 13px; }
             .snapshot-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-
+            
             /* إخفاء أزرار التصدير والطباعة على الهواتف */
             .export-group, #printTTBtn { display: none !important; }
         }
     </style>
 </head>
 <body class="antialiased" oncontextmenu="return false;">
-
-    <!-- نافذة إعداد الحصص المعدلة والموافقة للهاتف والكمبيوتر -->
-    <div id="ttModalOverlay" class="custom-tt-overlay no-print">
-        <div class="custom-tt-modal">
-            <div class="custom-tt-header">
-                <h3 class="font-black text-slate-800 flex items-center gap-2 text-base" style="margin: 0;">
-                    <i class="fa-solid fa-list-check text-blue-600"></i> إعداد حصص الفترة
-                </h3>
-                <button onclick="closeTTModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-200 transition-colors flex items-center justify-center" style="border: none; background: transparent; cursor: pointer;">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="custom-tt-body">
-                <div id="remainText" class="bg-blue-50 border border-blue-100 text-blue-700 px-4 py-3 rounded-xl text-center font-bold text-xs mb-5 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-clock"></i> المتبقي من وقت الفترة: 0 دقيقة
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-4">
-                    <div class="sm:col-span-3 flex flex-col gap-1.5">
-                        <label class="text-xs font-bold text-slate-500">اسم المادة</label>
-                        <input type="text" id="subInput" placeholder="مثال: التربية العلمية" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div class="sm:col-span-2 flex flex-col gap-1.5">
-                        <label class="text-xs font-bold text-slate-500">المدة</label>
-                        <select id="durInput" class="native-select-ui"></select>
-                    </div>
-                </div>
-                
-                <div class="flex flex-col gap-1.5 mb-5">
-                    <label class="text-xs font-bold text-slate-500">لون البطاقة</label>
-                    <div id="colorPick" class="flex flex-wrap gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100"></div>
-                </div>
-                
-                <button onclick="addSubject()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/20 transition-all flex justify-center items-center gap-2 text-sm border-none cursor-pointer">
-                    <i class="fa-solid fa-plus"></i> إدراج المادة
-                </button>
-                
-                <div class="mt-6">
-                    <div id="modalList" class="flex flex-col gap-2">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="pulse-overlay" id="loadingPulse">
         <div class="drop-pulse-wrapper">
@@ -1056,6 +1021,7 @@
                 </div>
             </div>
 
+            <!-- تبويب استعمال الزمن (بواجهة جديدة ومباشرة للإعداد) -->
             <div id="timetableTab" class="tab-content">
                 <div class="card" id="ttContainerCard">
 
@@ -1082,30 +1048,64 @@
                             </div>
                         </div>
 
+                        <!-- واجهة الإعداد المدمجة والجديدة (Inline Builder) -->
                         <div class="neu-flat rounded-2xl p-4 md:p-5 mb-5 no-print" id="ttControlsPanel">
-                            <!-- تعديل نظام الدوام ليصبح نصياً عادياً -->
-                            <div class="flex items-center gap-2 mb-4 p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
+                            
+                            <div class="flex items-center gap-2 mb-6 p-3 bg-blue-50 border border-blue-100 rounded-xl">
                                 <span class="text-sm font-bold text-slate-600"><i class="fa-solid fa-clock text-blue-600 ml-1"></i> نظام الدوام (من الإدارة):</span>
                                 <span id="sysDisplayText" class="text-sm font-extrabold text-blue-700">لم يحدد بعد</span>
                                 <input type="hidden" id="sysSelect" value="single">
                             </div>
 
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-xs font-bold text-slate-500">إدارة الحصص</label>
-                                <div class="flex flex-wrap sm:flex-nowrap gap-2">
-                                    <div class="flex gap-2 w-full sm:w-auto flex-1">
-                                        <select id="daySelect" onchange="updatePeriodOptions()" class="native-select-ui flex-1"></select>
-                                        <select id="periodSelect" class="native-select-ui flex-1"></select>
+                            <div class="mb-5 border-b border-slate-100 pb-5">
+                                <label class="text-sm font-bold text-slate-700 mb-3 block"><i class="fa-solid fa-calendar-day text-primary ml-1"></i> 1. اختر اليوم:</label>
+                                <div id="dayPillsContainer" class="flex flex-wrap gap-2.5"></div>
+                            </div>
+
+                            <div class="mb-5 border-b border-slate-100 pb-5">
+                                <label class="text-sm font-bold text-slate-700 mb-3 block"><i class="fa-solid fa-business-time text-emerald-600 ml-1"></i> 2. اختر الفترة الزمنية:</label>
+                                <div id="periodPillsContainer" class="flex flex-wrap gap-2.5"></div>
+                            </div>
+
+                            <!-- نموذج إضافة حصة للفترة المحددة -->
+                            <div id="inlineBuilder" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-5 mt-2">
+                                <h4 class="font-black text-slate-800 mb-4 border-b border-slate-200 pb-3"><i class="fa-solid fa-pen-to-square text-primary ml-1"></i> 3. إضافة مادة للفترة</h4>
+                                
+                                <div id="remainText" class="bg-white border border-blue-200 text-blue-700 px-4 py-3 rounded-xl font-bold text-xs mb-5 flex items-center gap-2 shadow-sm w-fit">
+                                    <i class="fa-solid fa-hourglass-half"></i> الوقت المتاح: 0 دقيقة
+                                </div>
+
+                                <div class="flex flex-col md:flex-row gap-5 mb-5">
+                                    <div class="flex flex-col gap-2 flex-1">
+                                        <label class="text-xs font-bold text-slate-500">اسم المادة</label>
+                                        <input type="text" id="subInput" placeholder="مثال: رياضيات" class="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-700 focus:outline-none focus:border-blue-500 text-sm shadow-sm transition-all">
                                     </div>
-                                    <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                                        <button onclick="openTTModal()" class="flex-1 sm:w-auto px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center transition-colors py-2.5 sm:py-0 text-sm font-bold border-none cursor-pointer">
-                                            <i class="fa-solid fa-pen ml-1.5"></i><span>تعديل وإضافة حصة</span>
-                                        </button>
-                                        <button onclick="clearTTData()" class="flex-1 sm:w-12 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-xl flex items-center justify-center transition-colors py-2.5 sm:py-0 text-sm font-bold border-none cursor-pointer" title="مسح الجدول بالكامل">
-                                            <i class="fa-solid fa-trash-can"></i><span class="sm:hidden mr-2">مسح الجدول</span>
-                                        </button>
+                                    
+                                    <div class="flex flex-col gap-2 flex-1">
+                                        <label class="text-xs font-bold text-slate-500">اختر المدة بالدقائق</label>
+                                        <div id="durationPills" class="flex flex-wrap gap-2"></div>
                                     </div>
                                 </div>
+
+                                <div class="flex flex-col gap-2 mb-6">
+                                    <label class="text-xs font-bold text-slate-500">لون المادة</label>
+                                    <div id="colorPick" class="flex flex-wrap gap-2.5 p-3 bg-white rounded-xl border border-slate-300 shadow-sm w-fit"></div>
+                                </div>
+
+                                <button onclick="addSubject()" class="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-all flex justify-center items-center gap-2 text-sm border-none cursor-pointer mb-6">
+                                    <i class="fa-solid fa-plus"></i> إدراج المادة في الجدول
+                                </button>
+
+                                <div class="border-t border-slate-200 pt-5">
+                                    <label class="text-xs font-bold text-slate-500 block mb-3">المواد المدرجة حالياً في هذه الفترة:</label>
+                                    <div id="inlineSubjectList" class="flex flex-col gap-3"></div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <button onclick="clearTTData()" class="px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center transition-colors text-sm font-bold border-none cursor-pointer shadow-sm">
+                                    <i class="fa-solid fa-trash-can ml-2"></i> مسح جميع حصص الجدول
+                                </button>
                             </div>
                         </div>
 
@@ -1199,8 +1199,15 @@
     let ttStatus = "new";
     let ttRejectionReason = "";
 
+    // متغيرات بناء الجدول المباشر
+    let selectedDay = "";
+    let selectedPeriodId = "";
+    let selectedDur = 0;
+
     const DAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس"];
     const COLORS = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#4f46e5'];
+    const DURATIONS = [15, 30, 45, 60, 90, 120];
+
     const CONFIG = {
         L1: {
             single: (d) => {
@@ -1362,8 +1369,6 @@
                 profileForm.addEventListener("change", () => { window.isUserEditing = true; });
             }
 
-            document.getElementById('daySelect').innerHTML = DAYS.map(d => `<option value="${d}">${d}</option>`).join('');
-
             updateLiveDate();
             loadTeacherProfile(true);
             
@@ -1382,10 +1387,8 @@
     async function loadTeacherProfile(showLoading = true) {
         const isUserTyping = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT');
         const isDropdownOpen = document.querySelectorAll('.custom-options-list.show').length > 0;
-        const ttModal = document.getElementById("ttModalOverlay");
-        const isTTModalOpen = ttModal && ttModal.classList.contains("active");
 
-        if (!showLoading && (isUserTyping || isDropdownOpen || window.isDropdownActive || window.isUserEditing || isTTModalOpen || hasUnsavedTTChanges)) {
+        if (!showLoading && (isUserTyping || isDropdownOpen || window.isDropdownActive || window.isUserEditing || hasUnsavedTTChanges)) {
             return;
         }
 
@@ -1544,10 +1547,14 @@
     }
 
     function detectClassLevel() {
-        const c = document.getElementById("assignedClass").value;
+        const c = document.getElementById("assignedClass").value || teacherClass;
         if(c.includes("رابعة") || c.includes("خامسة")) return "L2";
         return "L1"; 
     }
+
+    // ==========================================
+    // واجهة إعداد الجدول المدمجة (الجديدة كلياً)
+    // ==========================================
 
     function setupTimetableUI() {
         const ttAlert = document.getElementById("ttAlert");
@@ -1566,10 +1573,10 @@
         
         const sysTextElem = document.getElementById("sysDisplayText");
         if (sysTextElem) {
-            if (teacherScheduleType === "single") sysTextElem.textContent = "نظام الدوام الواحد";
-            else if (teacherScheduleType === "double1") sysTextElem.textContent = "نظام الدوامين - الفوج (1)";
-            else if (teacherScheduleType === "double2") sysTextElem.textContent = "نظام الدوامين - الفوج (2)";
-            else sysTextElem.textContent = "لم يحدد بعد";
+            if (teacherScheduleType === "single") sysTextElem.innerHTML = "نظام الدوام الواحد";
+            else if (teacherScheduleType === "double1") sysTextElem.innerHTML = "نظام الدوامين <span class='text-slate-500 font-bold ml-1'>(الفوج 1)</span>";
+            else if (teacherScheduleType === "double2") sysTextElem.innerHTML = "نظام الدوامين <span class='text-slate-500 font-bold ml-1'>(الفوج 2)</span>";
+            else sysTextElem.innerHTML = "لم يحدد بعد";
         }
 
         const pTitle = document.getElementById("printTTTitle");
@@ -1630,20 +1637,223 @@
             }
         }
 
-        updatePeriodOptions();
+        // تهيئة واجهة الأزرار التفاعلية
+        if (!selectedDay) selectedDay = DAYS[0];
+        renderDayPills();
+        renderPeriodPills();
         renderTT();
     }
 
-    function updatePeriodOptions() {
-        const lvl = detectClassLevel();
-        const sys = document.getElementById('sysSelect').value;
-        const day = document.getElementById('daySelect').value;
+    function renderDayPills() {
+        const container = document.getElementById("dayPillsContainer");
+        if (!container) return;
         
-        if(!CONFIG[lvl] || !CONFIG[lvl][sys]) return;
-        
-        const periods = CONFIG[lvl][sys](day).filter(p => p.id && !p.placeholder);
-        document.getElementById('periodSelect').innerHTML = periods.map(p => `<option value="${p.id}">من ${p.s} إلى ${p.e}</option>`).join('');
+        container.innerHTML = DAYS.map(d => {
+            const isActive = d === selectedDay;
+            const cls = isActive ? "selection-pill active-day" : "selection-pill inactive-day";
+            return `<button onclick="selectDay('${d}')" class="${cls}">${d}</button>`;
+        }).join("");
     }
+
+    function selectDay(d) {
+        selectedDay = d;
+        selectedPeriodId = "";
+        document.getElementById('inlineBuilder').classList.add('hidden');
+        renderDayPills();
+        renderPeriodPills();
+    }
+
+    function renderPeriodPills() {
+        const container = document.getElementById("periodPillsContainer");
+        if (!container) return;
+        
+        const lvl = detectClassLevel();
+        const sys = teacherScheduleType;
+        
+        if(!CONFIG[lvl] || !CONFIG[lvl][sys]) {
+            container.innerHTML = "<span class='text-sm text-slate-500'>لا توجد فترات متاحة</span>";
+            return;
+        }
+
+        const periods = CONFIG[lvl][sys](selectedDay).filter(p => p.id && !p.placeholder);
+        
+        container.innerHTML = periods.map(p => {
+            const isActive = p.id === selectedPeriodId;
+            const cls = isActive ? "selection-pill active-period" : "selection-pill inactive-period";
+            return `<button onclick="selectPeriod('${p.id}')" class="${cls}">من ${p.s} إلى ${p.e}</button>`;
+        }).join("");
+    }
+
+    function selectPeriod(pid) {
+        selectedPeriodId = pid;
+        renderPeriodPills();
+        document.getElementById('inlineBuilder').classList.remove('hidden');
+        updateInlineBuilder();
+    }
+
+    function updateInlineBuilder() {
+        const lvl = detectClassLevel();
+        const sys = teacherScheduleType;
+        
+        const layoutForDay = CONFIG[lvl][sys](selectedDay);
+        const p = layoutForDay.find(x => x.id === selectedPeriodId);
+        if(!p) return;
+
+        const key = `${lvl}_${sys}_${selectedDay}_${selectedPeriodId}`;
+        const subs = ttStorage[key] || [];
+        
+        const [sH, sM] = p.s.split(':').map(Number);
+        const [eH, eM] = p.e.split(':').map(Number);
+        const totalM = (eH * 60 + eM) - (sH * 60 + sM);
+        const remain = totalM - subs.reduce((sum, s) => sum + parseInt(s.dur), 0);
+        
+        const remainEl = document.getElementById('remainText');
+        remainEl.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> الوقت المتاح: ${remain} دقيقة`;
+        
+        if(remain === 0) {
+            remainEl.className = "bg-rose-50 border border-rose-200 text-rose-600 px-4 py-2 rounded-lg font-bold text-sm mb-5 flex items-center gap-2 shadow-sm w-fit";
+        } else {
+            remainEl.className = "bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-lg font-bold text-sm mb-5 flex items-center gap-2 shadow-sm w-fit";
+        }
+
+        // بناء أزرار المدة الزمنية
+        const durContainer = document.getElementById('durationPills');
+        const validDurs = DURATIONS.filter(d => d <= remain);
+        
+        if (validDurs.length > 0) {
+            selectedDur = validDurs[0];
+            durContainer.innerHTML = validDurs.map(d => {
+                const isActive = d === selectedDur;
+                const cls = isActive ? "selection-pill active-dur" : "selection-pill inactive-dur";
+                return `<button onclick="selectDuration(${d})" class="${cls}">${d} د</button>`;
+            }).join("");
+        } else {
+            selectedDur = 0;
+            durContainer.innerHTML = "<span class='text-sm font-bold text-rose-500'>لا يوجد وقت كافي لإضافة حصص أخرى.</span>";
+        }
+
+        drawColors();
+        
+        document.getElementById('inlineSubjectList').innerHTML = subs.map((s, i) => `
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-4 h-4 rounded-full shrink-0" style="background-color: ${s.color}"></div>
+                    <span class="font-extrabold text-slate-700 text-sm">${s.name}</span>
+                    <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-bold">${s.dur} دقيقة</span>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0 border-t sm:border-0 border-slate-100 pt-3 sm:pt-0">
+                    <button onclick="mvTT('${key}',${i},-1)" class="flex-1 sm:flex-none py-2 sm:w-9 sm:h-9 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:text-blue-600 hover:bg-white ${i === 0 ? 'opacity-30 pointer-events-none' : ''} flex items-center justify-center cursor-pointer transition-colors"><i class="fa-solid fa-chevron-up text-sm"></i></button>
+                    <button onclick="mvTT('${key}',${i},1)" class="flex-1 sm:flex-none py-2 sm:w-9 sm:h-9 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:text-blue-600 hover:bg-white ${i === subs.length-1 ? 'opacity-30 pointer-events-none' : ''} flex items-center justify-center cursor-pointer transition-colors"><i class="fa-solid fa-chevron-down text-sm"></i></button>
+                    <button onclick="rmTT('${key}',${i})" class="flex-1 sm:flex-none py-2 sm:w-9 sm:h-9 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-colors flex items-center justify-center cursor-pointer"><i class="fa-solid fa-trash text-sm"></i></button>
+                </div>
+            </div>
+        `).join('') || '<span class="text-sm font-bold text-slate-400">لا توجد حصص مضافة في هذه الفترة.</span>';
+    }
+
+    function selectDuration(dur) {
+        selectedDur = dur;
+        const durBtns = document.getElementById('durationPills').children;
+        Array.from(durBtns).forEach(btn => {
+            const btnDur = parseInt(btn.innerText);
+            if (btnDur === dur) {
+                btn.className = "selection-pill active-dur";
+            } else {
+                btn.className = "selection-pill inactive-dur";
+            }
+        });
+    }
+
+    function drawColors() {
+        document.getElementById('colorPick').innerHTML = COLORS.map(c => 
+            `<div onclick="activeColor='${c}';drawColors()" 
+                  class="w-9 h-9 rounded-xl cursor-pointer transition-transform hover:scale-105 flex items-center justify-center shadow-sm" 
+                  style="background-color:${c}; border: ${activeColor === c ? '3px solid #0f172a' : '1px solid transparent'}">
+                  ${activeColor === c ? '<i class="fa-solid fa-check text-white text-sm"></i>' : ''}
+            </div>`
+        ).join('');
+    }
+
+    function addSubject() {
+        const name = document.getElementById('subInput').value.trim() || 'مادة';
+        if(selectedDur === 0) return alert("لا يوجد وقت متبقي لهذه الفترة.");
+        
+        hasUnsavedTTChanges = true; 
+        
+        const lvl = detectClassLevel();
+        const sys = teacherScheduleType;
+        const key = `${lvl}_${sys}_${selectedDay}_${selectedPeriodId}`;
+        
+        if(!ttStorage[key]) ttStorage[key] = [];
+        ttStorage[key].push({name, dur: parseInt(selectedDur), color: activeColor});
+        
+        document.getElementById('subInput').value = '';
+        ttStatus = "new"; 
+        updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
+        document.getElementById("ttRejectionReason").style.display = "none";
+        
+        document.getElementById("sendTTBtn").style.display = "inline-flex";
+        document.getElementById("sendTTBtn").disabled = false;
+        document.getElementById("printTTBtn").disabled = true;
+        
+        updateInlineBuilder();
+        renderTT();
+    }
+
+    function rmTT(k, i) { 
+        hasUnsavedTTChanges = true; 
+        ttStorage[k].splice(i,1); 
+        ttStatus = "new";
+        updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
+        document.getElementById("ttRejectionReason").style.display = "none";
+        
+        document.getElementById("sendTTBtn").style.display = "inline-flex";
+        document.getElementById("sendTTBtn").disabled = false;
+        document.getElementById("printTTBtn").disabled = true;
+        
+        updateInlineBuilder();
+        renderTT(); 
+    }
+
+    function mvTT(k, i, d) {
+        hasUnsavedTTChanges = true; 
+        const a = ttStorage[k];
+        if(a[i+d]) { 
+            [a[i], a[i+d]] = [a[i+d], a[i]]; 
+            ttStatus = "new";
+            updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
+            document.getElementById("ttRejectionReason").style.display = "none";
+            
+            document.getElementById("sendTTBtn").style.display = "inline-flex";
+            document.getElementById("sendTTBtn").disabled = false;
+            document.getElementById("printTTBtn").disabled = true;
+            
+            updateInlineBuilder();
+            renderTT(); 
+        }
+    }
+    
+    function clearTTData() {
+        showModal("مسح الجدول", "هل أنت متأكد من مسح جميع حصص الجدول بشكل نهائي؟", function() {
+            ttStorage = {};
+            hasUnsavedTTChanges = true;
+            ttStatus = "new";
+            updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول فارغ ولم يُرسل بعد.");
+            document.getElementById("ttRejectionReason").style.display = "none";
+            
+            document.getElementById("sendTTBtn").style.display = "inline-flex";
+            document.getElementById("sendTTBtn").disabled = false;
+            document.getElementById("printTTBtn").disabled = true;
+            
+            selectedPeriodId = "";
+            document.getElementById('inlineBuilder').classList.add('hidden');
+            renderPeriodPills();
+            renderTT();
+        }, "btn-danger");
+    }
+
+    // ==========================================
+    // نهاية واجهة إعداد الجدول الجديدة
+    // ==========================================
 
     function renderTT() {
         const lvl = detectClassLevel();
@@ -1703,7 +1913,7 @@
                     
                     subs.forEach(s => {
                         const unit = document.createElement('div');
-                        unit.className = 'subject-block flex flex-col justify-center items-center text-center p-1 text-white rounded-lg transition-all hover:brightness-105 shadow-sm';
+                        unit.className = 'subject-block flex flex-col justify-center items-center text-center p-1 text-white rounded-lg transition-all shadow-sm';
                         unit.style.width = (s.dur / totalM * 100) + "%";
                         unit.style.backgroundColor = s.color;
                         unit.innerHTML = `
@@ -1720,148 +1930,6 @@
             row.appendChild(area);
             root.appendChild(row);
         });
-    }
-
-    function openTTModal() { 
-        document.getElementById('ttModalOverlay').classList.add('active');
-        drawColors(); 
-        drawTTList(); 
-    }
-
-    function closeTTModal() { 
-        document.getElementById('ttModalOverlay').classList.remove('active');
-        renderTT(); 
-    }
-
-    function drawColors() {
-        document.getElementById('colorPick').innerHTML = COLORS.map(c => 
-            `<div onclick="activeColor='${c}';drawColors()" 
-                  class="w-7 h-7 rounded-full cursor-pointer transition-transform hover:scale-110 flex items-center justify-center shadow-sm" 
-                  style="background-color:${c}; border: ${activeColor === c ? '2px solid #0f172a' : '2px solid transparent'}">
-                  ${activeColor === c ? '<i class="fa-solid fa-check text-white text-[10px]"></i>' : ''}
-            </div>`
-        ).join('');
-    }
-
-    function drawTTList() {
-        const lvl = detectClassLevel();
-        const sys = document.getElementById('sysSelect').value;
-        const day = document.getElementById('daySelect').value;
-        const pId = document.getElementById('periodSelect').value;
-        
-        if(!CONFIG[lvl] || !CONFIG[lvl][sys]) return;
-
-        const layoutForDay = CONFIG[lvl][sys](day);
-        const p = layoutForDay.find(x => x.id === pId);
-        if(!p) return;
-
-        const key = `${lvl}_${sys}_${day}_${pId}`;
-        const subs = ttStorage[key] || [];
-        
-        const [sH, sM] = p.s.split(':').map(Number);
-        const [eH, eM] = p.e.split(':').map(Number);
-        const totalM = (eH * 60 + eM) - (sH * 60 + sM);
-        const remain = totalM - subs.reduce((sum, s) => sum + parseInt(s.dur), 0);
-        
-        const remainEl = document.getElementById('remainText');
-        remainEl.innerText = `الوقت المتاح في هذه الفترة: ${remain} دقيقة`;
-        
-        if(remain === 0) remainEl.className = "bg-rose-50 border border-rose-100 text-rose-600 px-4 py-3 rounded-xl text-center font-bold text-xs mb-5 flex items-center justify-center gap-2";
-        else remainEl.className = "bg-blue-50 border border-blue-100 text-blue-700 px-4 py-3 rounded-xl text-center font-bold text-xs mb-5 flex items-center justify-center gap-2";
-
-        document.getElementById('durInput').innerHTML = [15, 30, 45, 60, 90, 120]
-            .filter(d => d <= remain)
-            .map(d => `<option value="${d}">${d} دقيقة</option>`)
-            .join('');
-            
-        document.getElementById('modalList').innerHTML = subs.map((s, i) => `
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-slate-50 p-3 rounded-xl border border-slate-200/80 gap-3">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-3.5 h-3.5 rounded-full shrink-0" style="background-color: ${s.color}"></div>
-                    <span class="font-bold text-slate-700 text-sm">${s.name} <span class="text-xs text-slate-400">(${s.dur} د)</span></span>
-                </div>
-                <div class="flex gap-2 justify-end w-full sm:w-auto border-t sm:border-0 border-slate-200 pt-2 sm:pt-0">
-                    <button onclick="mvTT('${key}',${i},-1)" class="flex-1 sm:flex-none py-1.5 sm:w-8 sm:h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-blue-600 ${i === 0 ? 'invisible' : ''} flex items-center justify-center"><i class="fa-solid fa-chevron-up text-xs"></i></button>
-                    <button onclick="mvTT('${key}',${i},1)" class="flex-1 sm:flex-none py-1.5 sm:w-8 sm:h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-blue-600 ${i === subs.length-1 ? 'invisible' : ''} flex items-center justify-center"><i class="fa-solid fa-chevron-down text-xs"></i></button>
-                    <button onclick="rmTT('${key}',${i})" class="flex-1 sm:flex-none py-1.5 sm:w-8 sm:h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors flex items-center justify-center mr-auto sm:ml-1 sm:mr-0"><i class="fa-solid fa-trash text-xs"></i></button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function addSubject() {
-        const name = document.getElementById('subInput').value.trim() || 'مادة';
-        const dur = document.getElementById('durInput').value;
-        if(!dur) return;
-        
-        hasUnsavedTTChanges = true; 
-        
-        const lvl = detectClassLevel();
-        const sys = document.getElementById('sysSelect').value;
-        const day = document.getElementById('daySelect').value;
-        const pId = document.getElementById('periodSelect').value;
-        const key = `${lvl}_${sys}_${day}_${pId}`;
-        
-        if(!ttStorage[key]) ttStorage[key] = [];
-        ttStorage[key].push({name, dur: parseInt(dur), color: activeColor});
-        
-        document.getElementById('subInput').value = '';
-        ttStatus = "new"; 
-        updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
-        document.getElementById("ttRejectionReason").style.display = "none";
-        
-        document.getElementById("sendTTBtn").style.display = "inline-flex";
-        document.getElementById("sendTTBtn").disabled = false;
-        document.getElementById("printTTBtn").disabled = true;
-        
-        drawTTList();
-    }
-
-    function rmTT(k, i) { 
-        hasUnsavedTTChanges = true; 
-        ttStorage[k].splice(i,1); 
-        ttStatus = "new";
-        updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
-        document.getElementById("ttRejectionReason").style.display = "none";
-        
-        document.getElementById("sendTTBtn").style.display = "inline-flex";
-        document.getElementById("sendTTBtn").disabled = false;
-        document.getElementById("printTTBtn").disabled = true;
-        
-        drawTTList(); 
-    }
-
-    function mvTT(k, i, d) {
-        hasUnsavedTTChanges = true; 
-        const a = ttStorage[k];
-        if(a[i+d]) { 
-            [a[i], a[i+d]] = [a[i+d], a[i]]; 
-            ttStatus = "new";
-            updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
-            document.getElementById("ttRejectionReason").style.display = "none";
-            
-            document.getElementById("sendTTBtn").style.display = "inline-flex";
-            document.getElementById("sendTTBtn").disabled = false;
-            document.getElementById("printTTBtn").disabled = true;
-            
-            drawTTList(); 
-        }
-    }
-    
-    function clearTTData() {
-        showModal("مسح الجدول", "هل أنت متأكد من مسح جميع حصص الجدول؟", function() {
-            ttStorage = {};
-            hasUnsavedTTChanges = true;
-            ttStatus = "new";
-            updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول فارغ ولم يُرسل بعد.");
-            document.getElementById("ttRejectionReason").style.display = "none";
-            
-            document.getElementById("sendTTBtn").style.display = "inline-flex";
-            document.getElementById("sendTTBtn").disabled = false;
-            document.getElementById("printTTBtn").disabled = true;
-            
-            renderTT();
-        }, "btn-danger");
     }
 
     function printTimetableAsImage() {
