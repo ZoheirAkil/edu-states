@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة التحكم - الأستاذ</title>
+    
+    <link rel="icon" type="image/png" href="image.png">
+    <link rel="apple-touch-icon" href="image.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <!-- مكتبة PDF لنسخة الهاتف -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-body: #e2e8f0;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --border-color: #cbd5e1;
+            
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            
+            --emerald-bg: #dcfce7;
+            --emerald-text: #15803d;
+            --emerald-border: #86efac;
+            
+            --amber-bg: #fef3c7;
+            --amber-text: #b45309;
+            --amber-border: #fcd34d;
+            
+            --indigo-bg: #e0e7ff;
+            --indigo-text: #4338ca;
+            --indigo-border: #a5b4fc;
+            
+            --danger-bg: #fee2e2;
+            --danger-text: #dc2626;
+            --danger-border: #fca5a5;
+
+            --text-main: #1e293b;
+            --text-sub: #475569;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow-x: hidden;
+            direction: rtl;
+            text-align: right;
+            width: 100%;
+        }
+
+        body {
+            display: flex;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: #334155;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 25px;
+            position: fixed;
+            height: 100vh;
+            right: 0;
+            top: 0;
+            z-index: 50;
+            overflow-y: auto;
+            color: #ffffff;
+            border-left: 1px solid #475569;
+        }
+
+        .main-content {
+            margin-right: 320px;
+            flex: 1;
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            max-width: calc(100vw - 320px);
+            width: calc(100vw - 320px);
+            overflow-x: hidden;
+        }
+
+        .brand-header { margin-bottom: 25px; }
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #38bdf8;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12.5px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .brand-header h2 { font-size: 24px; font-weight: 900; line-height: 1.4; color: #ffffff; margin-bottom: 6px; }
+        .district-badge { font-size: 14px; color: #cbd5e1; font-weight: 600; margin-bottom: 12px; }
+
+        .teacher-info-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 25px;
+        }
+        .teacher-info-box h4 { font-size: 14px; font-weight: 800; color: #ffffff; margin-bottom: 4px; line-height: 1.4; }
+        .teacher-info-box p { font-size: 12.5px; font-weight: 700; color: #38bdf8; }
+
+        .tab-menu { display: flex; flex-direction: column; gap: 10px; margin-bottom: auto; }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #cbd5e1;
+            cursor: pointer;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 14px;
+            position: relative;
+            transition: all 0.25s;
+            width: 100%;
+        }
+        .tab-btn i { font-size: 18px; width: 22px; text-align: center; }
+        .tab-btn:hover { background: rgba(255, 255, 255, 0.08); color: #ffffff; transform: translateX(-4px); }
+        .tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 8px 18px rgba(2, 132, 199, 0.35);
+            transform: translateX(-4px);
+        }
+
+        .notification-badge {
+            position: absolute; left: 15px; background-color: #ef4444; color: white;
+            border-radius: 50px; padding: 2px 8px; font-size: 11px; font-weight: 900; display: none;
+        }
+
+        .sidebar-actions { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-logout {
+            background: #dc2626;
+            color: #ffffff;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+            transition: all 0.25s;
+        }
+        .btn-logout i { font-size: 18px; width: 22px; text-align: center; }
+        .btn-logout:hover { background: #b91c1c; transform: translateX(-4px); }
+
+        .tab-content { display: none; animation: riseIn 0.4s ease forwards; width: 100%; }
+        .tab-content.active { display: block; }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            gap: 12px;
+        }
+        .card h3 { font-size: 18px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+
+        .welcome-hero-card {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border-radius: 24px;
+            padding: 35px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 12px 30px rgba(2, 132, 199, 0.22);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .welcome-hero-card::after {
+            content: '\f549';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 20px;
+            bottom: -25px;
+            font-size: 150px;
+            opacity: 0.12;
+            color: #ffffff;
+            pointer-events: none;
+        }
+        .welcome-hero-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .welcome-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 12.5px;
+            font-weight: 800;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .welcome-date-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: #e0f2fe;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 5px 12px;
+            border-radius: 8px;
+        }
+        .welcome-hero-card h2 {
+            font-size: 25px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .welcome-hero-card p {
+            font-size: 14.5px;
+            color: #e0f2fe;
+            line-height: 1.7;
+            margin-bottom: 22px;
+            max-width: 85%;
+            font-weight: 500;
+        }
+        .welcome-hero-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .hero-stat-pill {
+            border-radius: 12px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            transition: all 0.3s;
+        }
+        .hero-stat-pill.pill-new { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); }
+        .hero-stat-pill.pill-approved { background: rgba(21, 128, 61, 0.9); border: 1px solid #4ade80; }
+        .hero-stat-pill.pill-pending { background: rgba(180, 83, 9, 0.9); border: 1px solid #fcd34d; }
+        .hero-stat-pill.pill-rejected { background: rgba(220, 38, 38, 0.9); border: 1px solid #fca5a5; }
+
+        .snapshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+        .snapshot-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: transform 0.25s, border-color 0.25s;
+        }
+        .snapshot-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+        .snapshot-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .snapshot-icon.blue { background: #e0f2fe; color: var(--primary); }
+        .snapshot-icon.emerald { background: var(--emerald-bg); color: var(--emerald-text); }
+        .snapshot-icon.amber { background: var(--amber-bg); color: var(--amber-text); }
+        .snapshot-icon.indigo { background: var(--indigo-bg); color: var(--indigo-text); }
+        .snapshot-info h5 { font-size: 12px; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
+        .snapshot-info div { font-size: 16px; font-weight: 900; color: var(--text-main); }
+
+        .guide-steps-container {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 26px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .guide-steps-container h3 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .guide-steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+        .guide-step-item {
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px 18px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.25s ease;
+        }
+        .guide-step-item:hover {
+            border-color: var(--primary);
+            background: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+        .guide-step-num {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 14px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .guide-step-item h4 {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .guide-step-item p {
+            font-size: 12.5px;
+            color: var(--text-sub);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .welcome-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .action-guide-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.25s;
+        }
+        .action-guide-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.06);
+            border-color: var(--primary);
+        }
+        .action-guide-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: #e0f2fe;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .action-guide-box h4 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .action-guide-box p {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: auto;
+        }
+
+        .status-banner {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+        .status-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .status-approved { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .status-rejected { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+        .status-new { background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border-color); }
+
+        .grid-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+
+        .form-group { margin-bottom: 18px; position: relative; width: 100%; text-align: right; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; transition: color 0.2s; text-align: right; }
+        .form-group:focus-within label { color: var(--primary); }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-input);
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 700;
+            text-align: right;
+            transition: all 0.25s;
+        }
+        .form-group input:disabled {
+            background-color: #e2e8f0; cursor: not-allowed; opacity: 0.7; border-color: #cbd5e1;
+        }
+        .form-group input:focus:not(:disabled), .form-group textarea:focus { border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+        .form-group textarea { resize: none; }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-muted); font-weight: 500; font-size: 13px; }
+
+        .input-container { position: relative; width: 100%; }
+        .form-group select, .input-container select, td select { display: none !important; }
+
+        .custom-select-ui {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-input);
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s;
+        }
+        .custom-select-ui::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 13px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .custom-select-ui.active { border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+        .custom-select-ui.active::after { color: var(--primary); transform: translateY(-50%) rotate(180deg); }
+
+        .input-container.disabled .custom-select-ui { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #cbd5e1; }
+        .input-container.disabled .custom-select-ui::after { color: #94a3b8; }
+
+        .custom-options-list {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0; right: 0;
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            z-index: 9999;
+            max-height: 220px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .custom-options-list.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .custom-option {
+            padding: 11px 16px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .custom-option:not(.disabled):hover { background: #e0f2fe; color: var(--primary); }
+        .custom-option.disabled { color: #94a3b8; cursor: not-allowed; background: transparent; }
+
+        .custom-options-list::-webkit-scrollbar { width: 5px; }
+        .custom-options-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        .form-group:has(.custom-select-ui.active), .input-container:has(.custom-select-ui.active) { z-index: 50; }
+
+        .btn {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s;
+            position: relative;
+            z-index: 10;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+        .btn-submit, .btn { background: var(--primary); color: #fff; }
+        .btn-secondary { background: #64748b; color: #fff; }
+        .btn-danger { background: #dc2626; color: #fff; }
+        .btn-success { background: #059669; color: #fff; }
+        .btn-sm { padding: 8px 14px; font-size: 12.5px; border-radius: 8px; }
+
+        .chat-box {
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            height: 320px;
+            overflow-y: auto;
+            background-color: var(--bg-input);
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            direction: rtl;
+        }
+        .chat-message { padding: 12px 16px; border-radius: 14px; max-width: 75%; font-size: 14px; font-weight: 600; line-height: 1.5; text-align: right; box-shadow: 0 2px 5px rgba(0,0,0,0.04); }
+        .chat-message.sent { background-color: var(--primary); color: white; align-self: flex-start; border-top-right-radius: 4px; }
+        .chat-message.received { background-color: #ffffff; color: var(--text-main); align-self: flex-end; border-top-left-radius: 4px; border: 1px solid var(--border-color); }
+
+        .custom-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.25s;
+            direction: rtl;
+        }
+        .custom-modal-overlay.active { opacity: 1; visibility: visible; }
+        .custom-modal {
+            background: #ffffff; padding: 32px; border-radius: 20px; width: 100%; max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); text-align: right; transform: translateY(15px); transition: all 0.25s;
+            border: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+        .custom-modal-overlay.active .custom-modal { transform: translateY(0); }
+        .custom-modal h4 { color: var(--text-main); font-size: 19px; font-weight: 900; margin-bottom: 10px; }
+        .custom-modal p { color: var(--text-sub); font-size: 14px; font-weight: 500; margin-bottom: 22px; line-height: 1.6; }
+        .custom-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .custom-modal-actions .btn { flex: 1; }
+
+        /* تعديلات نافذة الحصص للهاتف */
+        .custom-tt-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center; z-index: 10000;
+            direction: rtl;
+        }
+        .custom-tt-overlay.active { display: flex; }
+        .custom-tt-modal {
+            background: #ffffff; width: 95%; max-width: 500px; max-height: 85vh;
+            border-radius: 20px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .custom-tt-header {
+            padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .custom-tt-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+        .pulse-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(226, 232, 240, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .pulse-overlay.active { opacity: 1; visibility: visible; }
+        .drop-pulse-wrapper { position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .drop-pulse-ring { position: absolute; inset: 0; border-radius: 50%; background: var(--primary); opacity: 0.25; animation: ripple 1.6s cubic-bezier(0, 0.2, 0.8, 1) infinite; }
+        .drop-pulse-ring:nth-child(2) { animation-delay: 0.5s; }
+        .drop-icon-center { width: 48px; height: 48px; background: #ffffff; border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2; box-shadow: 0 0 20px rgba(2, 132, 199, 0.2); }
+        .drop-icon-center i { font-size: 20px; color: var(--primary); }
+        @keyframes ripple { 0% { transform: scale(0.6); opacity: 0.6; } 100% { transform: scale(1.7); opacity: 0; } }
+        .pulse-text { margin-top: 18px; font-size: 14px; font-weight: 700; color: var(--text-main); }
+
+        .bottom-nav {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); padding: 8px 12px; z-index: 90;
+            justify-content: space-around; align-items: center; box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.06);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub);
+            text-decoration: none; font-size: 11px; font-weight: 700; transition: color 0.2s ease, transform 0.2s ease; cursor: pointer;
+        }
+        .nav-item.active, .nav-item:hover { color: var(--primary); transform: translateY(-2px); }
+        .nav-item i { font-size: 16px; }
+
+        .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
+        .neu-flat { background: #ffffff; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout { flex-direction: column; padding-bottom: 74px; width: 100vw; overflow-x: hidden; }
+            .sidebar { display: none; }
+            .main-content { margin-right: 0; padding: 20px 15px 90px 15px; max-width: 100vw; width: 100%; overflow-x: hidden; box-sizing: border-box; }
+            .card, .welcome-hero-card, .guide-steps-container, .quick-tip-box { width: 100%; box-sizing: border-box; }
+            .card { padding: 18px 15px; border-radius: 16px; margin-bottom: 16px; }
+            .bottom-nav { display: flex; }
+            .grid-forms { grid-template-columns: 1fr; gap: 16px; }
+            .card-header { flex-direction: column; align-items: stretch; gap: 12px; }
+            .welcome-hero-card { padding: 22px 18px; border-radius: 18px; }
+            .welcome-hero-card h2 { font-size: 19px; }
+            .welcome-hero-card p { max-width: 100%; font-size: 13px; }
+            .snapshot-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+        }
+    </style>
+</head>
+<body class="antialiased" oncontextmenu="return false;">
+
+    <!-- نافذة إعداد الحصص المعدلة كلياً لتتوافق مع الهاتف والكمبيوتر -->
+    <div id="ttModalOverlay" class="custom-tt-overlay no-print">
+        <div class="custom-tt-modal">
+            <div class="custom-tt-header">
+                <h3 class="font-black text-slate-800 flex items-center gap-2 text-base" style="margin: 0;">
+                    <i class="fa-solid fa-list-check text-blue-600"></i> إعداد حصص الفترة
+                </h3>
+                <button onclick="closeTTModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-200 transition-colors flex items-center justify-center" style="border: none; background: transparent; cursor: pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="custom-tt-body">
+                <div id="remainText" class="bg-blue-50 border border-blue-100 text-blue-700 px-4 py-3 rounded-xl text-center font-bold text-xs mb-5 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-clock"></i> المتبقي من وقت الفترة: 0 دقيقة
+                </div>
+                
+                <div class="grid grid-cols-5 gap-3 mb-4">
+                    <div class="col-span-3 flex flex-col gap-1.5">
+                        <label class="text-xs font-bold text-slate-500">اسم المادة</label>
+                        <input type="text" id="subInput" placeholder="مثال: التربية العلمية" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:border-blue-500 text-sm">
+                    </div>
+                    <div class="col-span-2 flex flex-col gap-1.5">
+                        <label class="text-xs font-bold text-slate-500">المدة</label>
+                        <select id="durInput" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:border-blue-500 text-sm cursor-pointer"></select>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-1.5 mb-5">
+                    <label class="text-xs font-bold text-slate-500">لون البطاقة</label>
+                    <div id="colorPick" class="flex flex-wrap gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100"></div>
+                </div>
+                
+                <button onclick="addSubject()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/20 transition-all flex justify-center items-center gap-2 text-sm border-none cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> إدراج المادة
+                </button>
+                
+                <div class="mt-6">
+                    <div id="modalList" class="flex flex-col gap-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pulse-overlay" id="loadingPulse">
+        <div class="drop-pulse-wrapper">
+            <div class="drop-pulse-ring"></div>
+            <div class="drop-pulse-ring"></div>
+            <div class="drop-icon-center">
+                <i class="fa-solid fa-chalkboard-user"></i>
+            </div>
+        </div>
+        <div class="pulse-text" id="pulseStatusText">جاري تحديث البيانات...</div>
+    </div>
+
+    <div id="customModal" class="custom-modal-overlay no-print">
+        <div class="custom-modal">
+            <h4 id="modalTitle">تأكيد الإجراء</h4>
+            <p id="modalMessage">هل أنت متأكد من تنفيذ هذا الإجراء؟</p>
+            <div class="custom-modal-actions">
+                <button id="modalConfirmBtn" class="btn btn-danger">تأكيد</button>
+                <button onclick="closeModal()" class="btn btn-secondary">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand-header">
+                <div class="brand-badge">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    حساب الأستاذ
+                </div>
+                <h2>لوحة التحكم</h2>
+                <div class="district-badge" id="districtBadgeTitle">جاري التحميل...</div>
+                <div class="teacher-info-box">
+                    <h4 id="schoolTitle">المدرسة: جاري التحميل...</h4>
+                    <p id="teacherTitle"></p>
+                </div>
+            </div>
+
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="switchTab('welcomeTab', this)">
+                    <i class="fa-solid fa-house"></i> الرئيسية
+                </button>
+                <button class="tab-btn" onclick="switchTab('profileTab', this)">
+                    <i class="fa-solid fa-address-card"></i> بياناتي الإدارية
+                </button>
+                <button class="tab-btn" onclick="switchTab('timetableTab', this)">
+                    <i class="fa-solid fa-table-cells"></i> استعمال الزمن
+                </button>
+                <button class="tab-btn" onclick="switchTab('chatTab', this)">
+                    <i class="fa-solid fa-envelope-open-text"></i> مراسلة المدير
+                    <span id="chatNotificationBadge" class="notification-badge">0</span>
+                </button>
+            </div>
+
+            <div class="sidebar-actions">
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div id="welcomeTab" class="tab-content active">
+                <div class="welcome-hero-card">
+                    <div class="welcome-hero-top">
+                        <div class="welcome-hero-badge">
+                            <i class="fa-solid fa-graduation-cap"></i> فضاء الأستاذ
+                        </div>
+                        <div class="welcome-date-badge" id="currentDateBadge">
+                            <i class="fa-regular fa-calendar-days"></i> جاري تحديد التاريخ...
+                        </div>
+                    </div>
+                    <h2><i class="fa-solid fa-hands-clapping"></i> <span id="welcomeGreeting">مرحباً بك زميلنا الأستاذ</span></h2>
+                    <p>يسعدنا انضمامك إلى فضاء متابعة المسار المهني والإداري. تم إعداد هذه المنصة خصيصاً لتسهيل مراجعة وتحديث وضعيتك الإدارية وتوفير قناة اتصال فورية وآمنة مع إدارة مؤسستك.</p>
+                    
+                    <div class="welcome-hero-stats">
+                        <div class="hero-stat-pill pill-new">
+                            <i class="fa-solid fa-school"></i>
+                            <span id="welcomeSchoolPill">المؤسسة: جاري التحميل...</span>
+                        </div>
+                        <div id="welcomeStatusContainer" class="hero-stat-pill pill-new">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <span id="welcomeStatusPill">الحالة: بانتظار التحقق</span>
+                        </div>
+                        <div id="welcomeScheduleContainer" class="hero-stat-pill pill-new">
+                            <i class="fa-solid fa-clock"></i>
+                            <span id="welcomeSchedulePill">الدوام: بانتظار التحديد</span>
+                        </div>
+                        <div id="welcomeTTStatusContainer" class="hero-stat-pill pill-new">
+                            <i class="fa-solid fa-table"></i>
+                            <span id="welcomeTTStatusPill">الجدول: جديد</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="snapshot-grid">
+                    <div class="snapshot-card">
+                        <div class="snapshot-icon blue"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="snapshot-info">
+                            <h5>الدرجة الحالية</h5>
+                            <div id="snapGrade">-</div>
+                        </div>
+                    </div>
+                    <div class="snapshot-card">
+                        <div class="snapshot-icon indigo"><i class="fa-solid fa-award"></i></div>
+                        <div class="snapshot-info">
+                            <h5>الصنف الوظيفي</h5>
+                            <div id="snapCategory">-</div>
+                        </div>
+                    </div>
+                    <div class="snapshot-card">
+                        <div class="snapshot-icon emerald"><i class="fa-solid fa-star"></i></div>
+                        <div class="snapshot-info">
+                            <h5>نقطة التفتيش</h5>
+                            <div id="snapScore">-</div>
+                        </div>
+                    </div>
+                    <div class="snapshot-card">
+                        <div class="snapshot-icon amber"><i class="fa-solid fa-chalkboard"></i></div>
+                        <div class="snapshot-info">
+                            <h5>القسم المسند</h5>
+                            <div id="snapClass">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-steps-container">
+                    <h3><i class="fa-solid fa-route" style="color: var(--primary);"></i> كيف تسير الإجراءات في منصتك؟</h3>
+                    <div class="guide-steps-grid">
+                        <div class="guide-step-item">
+                            <div class="guide-step-num">1</div>
+                            <h4>إدخال ومراجعة البيانات</h4>
+                            <p>قم بملء أو مراجعة معطياتك (الإطار، الدرجة، الأقسام...) وجدولك الزمني ثم اضغط إرسال.</p>
+                        </div>
+                        <div class="guide-step-item">
+                            <div class="guide-step-num">2</div>
+                            <h4>اعتماد مدير المدرسة</h4>
+                            <p>يراجع السيد المدير ملفك وجدولك ويعتمده رسمياً لتثبيت المعطيات في سجل المدرسة والمقاطعة.</p>
+                        </div>
+                        <div class="guide-step-item">
+                            <div class="guide-step-num">3</div>
+                            <h4>المتابعة والتقارير</h4>
+                            <p>تُحول بياناتك وجداولك المعتمدة تلقائياً لمفتشية التعليم الابتدائي للمتابعة والزيارات.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="welcome-actions-grid">
+                    <div class="action-guide-box">
+                        <div class="action-guide-icon"><i class="fa-solid fa-table-cells"></i></div>
+                        <h4>الجدول الزمني</h4>
+                        <p>بعد تحديد المدير لنظام الدوام، قم بملء استعمال الزمن الخاص بك بدقة وإرساله للمصادقة.</p>
+                        <button class="btn btn-submit btn-sm" onclick="navigateToTab('timetableTab', 2)">
+                            <i class="fa-solid fa-pen-to-square"></i> الانتقال للجدول
+                        </button>
+                    </div>
+
+                    <div class="action-guide-box">
+                        <div class="action-guide-icon"><i class="fa-solid fa-comments"></i></div>
+                        <h4>المراسلة الفورية</h4>
+                        <p>تواصل مع مدير المدرسة في أي وقت واستقبل التوجيهات والردود بشكل لحظي وموثوق.</p>
+                        <button class="btn btn-secondary btn-sm" onclick="navigateToTab('chatTab', 3)">
+                            <i class="fa-solid fa-paper-plane"></i> فتح نافذة المراسلة
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profileTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-pen-to-square"></i> إدخال وتحديث البيانات الإدارية</h3>
+                    </div>
+
+                    <div id="statusBanner" class="status-banner" style="display: none;">
+                        <i id="statusIcon" class="fa-solid fa-circle-info fa-lg"></i>
+                        <span id="statusText">جاري فحص حالة البيانات...</span>
+                    </div>
+
+                    <form id="profileForm" onsubmit="confirmSubmitProfile(event)">
+                        <div class="grid-forms">
+                            <div class="form-group">
+                                <label>الاسم واللقب الكامل</label>
+                                <input type="text" id="fullName" placeholder="أدخل الاسم واللقب" required oninvalid="this.setCustomValidity('يرجى ملء الاسم واللقب الكامل')" oninput="this.setCustomValidity('')">
+                            </div>
+                            <div class="form-group">
+                                <label>اللقب الأصلي للزوجة</label>
+                                <input type="text" id="maidenName" placeholder="اللقب الأصلي إن وجد">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ ومكان الميلاد</label>
+                                <input type="text" id="birthInfo" placeholder="مثال: 09 أوت 1994 بوهران">
+                            </div>
+                            <div class="form-group">
+                                <label>الإطار</label>
+                                <div class="input-container">
+                                    <select id="framework" onchange="autoSelectCategory()" required oninvalid="this.setCustomValidity('يرجى اختيار الإطار')" oninput="this.setCustomValidity('')">
+                                        <option value="">-- اختر الإطار --</option>
+                                        <option value="أستاذ التعليم الابتدائي">أستاذ التعليم الابتدائي</option>
+                                        <option value="أستاذ التعليم الابتدائي قسم أول">أستاذ التعليم الابتدائي قسم أول</option>
+                                        <option value="أستاذ التعليم الابتدائي قسم ثان">أستاذ التعليم الابتدائي قسم ثان</option>
+                                        <option value="أستاذ مميز">أستاذ مميز</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الصنف (تلقائي)</label>
+                                <div class="input-container">
+                                    <select id="category" required disabled>
+                                        <option value="">-- يحدد تلقائياً --</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>الدرجة الحالية</label>
+                                <div class="input-container">
+                                    <select id="grade" required oninvalid="this.setCustomValidity('يرجى اختيار الدرجة')" oninput="this.setCustomValidity('')">
+                                        <option value="">-- اختر الدرجة --</option>
+                                        <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                                        <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+                                        <option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ السريان</label>
+                                <input type="date" id="effectiveDate">
+                            </div>
+                            <div class="form-group">
+                                <label>نقطة التفتيش</label>
+                                <input type="number" id="inspectionScore" step="0.25" min="0" max="20" placeholder="مثال: 15.5">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ آخر تفتيش</label>
+                                <input type="date" id="lastInspectionDate">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ آخر زيارة توجيهية</label>
+                                <input type="date" id="lastGuidanceVisitDate">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ أول تعيين</label>
+                                <input type="date" id="firstAppointmentDate">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ التثبيت</label>
+                                <input type="date" id="confirmationDate">
+                            </div>
+                            <div class="form-group">
+                                <label>الشهادة والمؤهل العلمي</label>
+                                <input type="text" id="degreeSubject" placeholder="مثال: ليسانس لغة عربية">
+                            </div>
+                            <div class="form-group">
+                                <label>القسم المسند حالياً</label>
+                                <div class="input-container">
+                                    <select id="assignedClass" onchange="detectClassLevel()" required oninvalid="this.setCustomValidity('يرجى اختيار القسم المسند')" oninput="this.setCustomValidity('')">
+                                        <option value="">-- اختر القسم --</option>
+                                        <option value="التحضيري">التحضيري</option>
+                                        <option value="السنة الأولى">السنة الأولى</option>
+                                        <option value="السنة الثانية">السنة الثانية</option>
+                                        <option value="السنة الثالثة">السنة الثالثة</option>
+                                        <option value="السنة الرابعة">السنة الرابعة</option>
+                                        <option value="السنة الخامسة">السنة الخامسة</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 25px;">
+                            <button type="submit" id="saveBtn" class="btn btn-submit">
+                                <i class="fa-solid fa-paper-plane"></i> إرسال البيانات للمراجعة
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="timetableTab" class="tab-content">
+                <div class="card" id="ttContainerCard">
+
+                    <div class="card-header no-print">
+                        <h3><i class="fa-solid fa-table-cells"></i> بناء وإدارة استعمال الزمن</h3>
+                        <div class="flex gap-2">
+                            <button onclick="submitTimetable()" id="sendTTBtn" class="btn btn-success btn-sm"><i class="fa-solid fa-paper-plane"></i> إرسال للمدير</button>
+                            <button onclick="printTimetableAsImage()" id="printTTBtn" class="btn btn-secondary btn-sm" disabled><i class="fa-solid fa-print"></i> طباعة (PDF)</button>
+                        </div>
+                    </div>
+
+                    <div id="ttAlert" class="status-banner status-rejected no-print" style="display: none;">
+                        <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                        <span>عذراً، لم يقم مدير المدرسة بتحديد نظام الدوام الخاص بك حتى الآن. لا يمكنك إعداد الجدول.</span>
+                    </div>
+
+                    <div id="ttBuilder" style="display: none; background-color: #ffffff;">
+
+                        <div id="ttStatusBanner" class="status-banner status-new no-print" style="margin-bottom: 15px; align-items: flex-start;">
+                            <i id="ttStatusIcon" class="fa-solid fa-info-circle fa-lg" style="margin-top: 4px;"></i>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span id="ttStatusText">حالة الجدول: جديد</span>
+                                <span id="ttRejectionReason" style="display: none; font-size: 13px; font-weight: 700; opacity: 0.9; white-space: pre-wrap; line-height: 1.6; margin-top: 5px;"></span>
+                            </div>
+                        </div>
+
+                        <div class="neu-flat rounded-2xl p-4 md:p-5 mb-5 no-print" id="ttControlsPanel">
+                            <div class="flex flex-col gap-1.5 mb-4">
+                                <label class="text-xs font-bold text-slate-500">نظام الدوام (من الإدارة)</label>
+                                <select id="sysSelect" disabled class="w-full sm:w-1/2 p-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-slate-500 text-sm">
+                                    <option value="single">نظام الدوام الواحد</option>
+                                    <option value="double1">نظام الدوامين - الفوج (1)</option>
+                                    <option value="double2">نظام الدوامين - الفوج (2)</option>
+                                </select>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-xs font-bold text-slate-500">إدارة الحصص</label>
+                                <div class="flex flex-wrap sm:flex-nowrap gap-2">
+                                    <div class="flex gap-2 w-full sm:w-auto flex-1">
+                                        <select id="daySelect" onchange="updatePeriodOptions()" class="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:border-blue-500 text-sm"></select>
+                                        <select id="periodSelect" class="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:border-blue-500 text-sm"></select>
+                                    </div>
+                                    <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                                        <button onclick="openTTModal()" class="flex-1 sm:w-20 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center transition-colors py-2.5 sm:py-0 text-sm font-bold">
+                                            <i class="fa-solid fa-pen"></i><span class="sm:hidden mr-2">تعديل وإضافة حصة</span>
+                                        </button>
+                                        <button onclick="clearTTData()" class="flex-1 sm:w-20 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-xl flex items-center justify-center transition-colors py-2.5 sm:py-0 text-sm font-bold" title="مسح الجدول بالكامل">
+                                            <i class="fa-solid fa-trash-can"></i><span class="sm:hidden mr-2">مسح الجدول</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="ttCaptureArea" style="background-color: #ffffff; width: 100%;">
+                            <div class="print-header-tt" style="display: none; width: 100%; text-align: center; font-family: 'Tajawal', sans-serif; color: #000; direction: rtl;">
+                                <h2 id="printTTTitle" style="font-size: 18pt; font-weight: 900; margin-bottom: 5px;">استعمال الزمن للسنة </h2>
+                                <p id="printTTSubTitle" style="font-size: 14pt; font-weight: 700; margin-top: 0; margin-bottom: 20px;">الأستاذ: - المدرسة: </p>
+                            </div>
+
+                            <div class="overflow-x-auto pb-6" id="ttScrollWrapper">
+                                <div id="scheduleRoot" class="flex flex-col gap-3 min-w-[950px] neu-flat p-4 rounded-xl" dir="rtl" style="background-color: #ffffff;">
+                                </div>
+                            </div>
+
+                            <div class="print-footer-tt" style="display: none; justify-content: space-between; padding: 0 40px; font-family: 'Tajawal', sans-serif; color: #000; margin-top: 40px; direction: rtl;">
+                                <div style="font-size: 14pt; font-weight: 800; text-align: center; width: 33%;">إمضاء الأستاذ</div>
+                                <div style="font-size: 14pt; font-weight: 800; text-align: center; width: 33%;">إمضاء وختم المدير</div>
+                                <div style="font-size: 14pt; font-weight: 800; text-align: center; width: 33%;">إمضاء وختم المفتش</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chatTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-comments"></i> مراسلة مدير المدرسة</h3>
+                    </div>
+                    
+                    <div class="chat-box" id="teacherChatBox">
+                        <div style="text-align: center; color: var(--text-muted); margin-top: 100px; font-weight: 700;">لا توجد رسائل سابقة.</div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <div class="form-group" style="flex: 1; min-width: 200px; margin: 0;">
+                            <input type="text" id="teacherChatMessage" placeholder="اكتب رسالتك لمدير المدرسة واضغط Enter..." onkeydown="handleChatKeyDown(event)">
+                        </div>
+                        <button class="btn btn-submit" style="width: auto;" onclick="sendTeacherMessage()">
+                            <i class="fa-solid fa-paper-plane"></i> إرسال
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchMobileTab('welcomeTab', this)">
+            <i class="fa-solid fa-house"></i>
+            <span>الرئيسية</span>
+        </div>
+        <div class="nav-item" onclick="switchMobileTab('profileTab', this)">
+            <i class="fa-solid fa-address-card"></i>
+            <span>بياناتي</span>
+        </div>
+        <div class="nav-item" onclick="switchMobileTab('timetableTab', this)">
+            <i class="fa-solid fa-table-cells"></i>
+            <span>الجدول</span>
+        </div>
+        <div class="nav-item" onclick="switchMobileTab('chatTab', this)">
+            <i class="fa-solid fa-envelope-open-text"></i>
+            <span>الرسائل</span>
+        </div>
+        <div class="nav-item" onclick="logout()">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>خروج</span>
+        </div>
+    </nav>
+
+<script>
+    const SCRIPT_URL = localStorage.getItem("currentScriptUrl");
+    const currentDistrictName = localStorage.getItem("currentDistrictName");
+
+    window.isDropdownActive = false;
+    window.isUserEditing = false;
+    let hasUnsavedTTChanges = false; 
+
+    if (!SCRIPT_URL) {
+        window.location.href = "index.html";
+    }
+
+    let currentUsername = "";
+    let directorUsername = "";
+    let isFetchingProfile = false;
+    
+    let teacherScheduleType = "";
+    let teacherClass = "";
+    let teacherFullName = "";
+    let schoolNameText = "غير مسند";
+    let ttStatus = "new";
+    let ttRejectionReason = "";
+
+    const DAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس"];
+    const COLORS = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#4f46e5'];
+    const CONFIG = {
+        L1: {
+            single: (d) => {
+                if(d==="الثلاثاء"||d==="الخميس") return [
+                    {id:'p1',s:'08:00',e:'09:30',f:1.5}, {t:'إستراحة'}, {id:'p2',s:'09:45',e:'11:15',f:1.5},
+                    {t:'فترة الزوال'}, {id:'empty', placeholder: true, f:2}
+                ];
+                return [{id:'p1',s:'08:00',e:'09:30',f:1.5},{t:'إستراحة'},{id:'p2',s:'09:45',e:'11:15',f:1.5},{t:'فترة الزوال'},{id:'p3',s:'13:00',e:'15:00',f:2}];
+            },
+            double1: (d) => {
+                if(d==="الثلاثاء") return [{id:'p1',s:'08:00',e:'12:30',f:4.5}];
+                if(d==="الخميس") return [{id:'p1',s:'08:00',e:'11:00',f:3}];
+                return [{id:'p1',s:'08:00',e:'10:30',f:2.5},{t:'مساءً'},{id:'p2',s:'13:00',e:'15:00',f:2}];
+            },
+            double2: (d) => {
+                if(d==="الثلاثاء") return [{id:'p1',s:'12:30',e:'17:00',f:4.5}];
+                if(d==="الخميس") return [{id:'p1',s:'11:00',e:'14:00',f:3}];
+                return [{id:'p1',s:'10:30',e:'13:00',f:2.5},{t:'مساءً'},{id:'p2',s:'15:00',e:'17:00',f:2}];
+            }
+        },
+        L2: {
+            single: (d) => {
+                if(d==="الثلاثاء") return [
+                    {id:'p1',s:'08:00',e:'09:30',f:1.5}, {t:'إستراحة'}, {id:'p2',s:'09:45',e:'11:15',f:1.5},
+                    {t:'فترة الزوال'}, {id:'empty', placeholder: true, f:2}
+                ];
+                let end = (d==="الخميس") ? '14:30' : '15:00';
+                return [{id:'p1',s:'08:00',e:'09:30',f:1.5},{t:'إستراحة'},{id:'p2',s:'09:45',e:'11:15',f:1.5},{t:'فترة الزوال'},{id:'p3',s:'13:00',e:end,f:2}];
+            },
+            double1: (d) => {
+                if(d==="الثلاثاء") return [{id:'p1',s:'08:00',e:'12:30',f:4.5}];
+                return [{id:'p1',s:'08:00',e:'10:30',f:2.5},{t:'مساءً'},{id:'p2',s:'13:00',e:'15:00',f:2}];
+            },
+            double2: (d) => {
+                if(d==="الثلاثاء") return [{id:'p1',s:'12:30',e:'17:00',f:4.5}];
+                return [{id:'p1',s:'10:30',e:'13:00',f:2.5},{t:'مساءً'},{id:'p2',s:'15:00',e:'17:00',f:2}];
+            }
+        }
+    };
+    
+    let activeColor = COLORS[0];
+    let ttStorage = {};
+
+    const loadingPulse = document.getElementById('loadingPulse');
+    const pulseStatusText = document.getElementById('pulseStatusText');
+
+    function showLoader(text = "جاري تحديث البيانات...") {
+        if (!loadingPulse) return;
+        pulseStatusText.textContent = text;
+        loadingPulse.classList.add('active');
+    }
+
+    function hideLoader() {
+        if (!loadingPulse) return;
+        loadingPulse.classList.remove('active');
+    }
+
+    const dzMonths = ["جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+    const categoryMapping = {
+        "أستاذ التعليم الابتدائي": "12",
+        "أستاذ التعليم الابتدائي قسم أول": "13",
+        "أستاذ التعليم الابتدائي قسم ثان": "14",
+        "أستاذ مميز": "15"
+    };
+
+    function autoSelectCategory() {
+        const frameworkVal = document.getElementById("framework").value;
+        document.getElementById("category").value = categoryMapping[frameworkVal] || "";
+        document.getElementById("category").dispatchEvent(new Event('change'));
+    }
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if (btn) btn.classList.add('active');
+
+        if (tabId === 'chatTab') loadTeacherChat(false);
+    }
+
+    function switchMobileTab(tabId, el) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if (el) el.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (tabId === 'chatTab') loadTeacherChat(false);
+    }
+
+    function navigateToTab(tabId, tabIndex) {
+        const desktopBtns = document.querySelectorAll('.sidebar .tab-btn');
+        const mobileBtns = document.querySelectorAll('.bottom-nav .nav-item');
+        
+        if (desktopBtns[tabIndex]) switchTab(tabId, desktopBtns[tabIndex]);
+        else switchTab(tabId, null);
+
+        if (mobileBtns[tabIndex]) {
+            mobileBtns.forEach(b => b.classList.remove('active'));
+            mobileBtns[tabIndex].classList.add('active');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showModal(title, message, confirmCallback, btnClass = 'btn-danger') {
+        const modal = document.getElementById("customModal");
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalMessage").textContent = message;
+        
+        const confirmBtn = document.getElementById("modalConfirmBtn");
+        confirmBtn.className = `btn ${btnClass}`;
+        confirmBtn.textContent = 'تأكيد';
+        
+        const newBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+        newBtn.onclick = function() { closeModal(); confirmCallback(); };
+
+        modal.classList.add("active");
+    }
+
+    function closeModal() { document.getElementById("customModal").classList.remove("active"); }
+
+    function formatDateInput(rawDate) {
+        if (!rawDate || rawDate === '-') return '';
+        const d = new Date(rawDate);
+        if (isNaN(d.getTime())) return '';
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+    }
+
+    function updateLiveDate() {
+        const now = new Date();
+        const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+        const dayName = days[now.getDay()];
+        const formatted = `${dayName} ${now.getDate()} ${dzMonths[now.getMonth()]} ${now.getFullYear()}`;
+        const elem = document.getElementById("currentDateBadge");
+        if (elem) elem.innerHTML = `<i class="fa-regular fa-calendar-days"></i> ${formatted}`;
+    }
+
+    window.onload = function() {
+        const session = JSON.parse(localStorage.getItem("userSession"));
+        if (!session || session.role !== "teacher") {
+            window.location.href = "login.html";
+        } else {
+            currentUsername = session.username;
+            document.getElementById("teacherTitle").innerHTML = "<i class='fa-solid fa-user'></i> الأستاذ: " + currentUsername;
+            
+            const curHour = new Date().getHours();
+            const timeGreeting = (curHour < 12) ? "صباح الخير" : "مساء الخير";
+            const greetingElem = document.getElementById("welcomeGreeting");
+            if (greetingElem) greetingElem.textContent = `${timeGreeting} زميلنا الأستاذ (${currentUsername})`;
+
+            if (currentDistrictName) {
+                document.getElementById("districtBadgeTitle").textContent = currentDistrictName;
+            }
+
+            const profileForm = document.getElementById("profileForm");
+            if (profileForm) {
+                profileForm.addEventListener("input", () => { window.isUserEditing = true; });
+                profileForm.addEventListener("change", () => { window.isUserEditing = true; });
+            }
+
+            document.getElementById('daySelect').innerHTML = DAYS.map(d => `<option value="${d}">${d}</option>`).join('');
+
+            updateLiveDate();
+            loadTeacherProfile(true);
+            
+            setInterval(autoSyncBackground, 3000);
+        }
+    };
+
+    async function autoSyncBackground() {
+        const isChatActive = document.getElementById('chatTab') && document.getElementById('chatTab').classList.contains('active');
+        if (isChatActive) loadTeacherChat(false);
+        else checkNewMessages();
+
+        if (!isFetchingProfile) loadTeacherProfile(false);
+    }
+
+    async function loadTeacherProfile(showLoading = true) {
+        const isUserTyping = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT');
+        const isDropdownOpen = document.querySelectorAll('.custom-options-list.show').length > 0;
+        const ttModal = document.getElementById("ttModalOverlay");
+        const isTTModalOpen = ttModal && ttModal.classList.contains("active");
+
+        if (!showLoading && (isUserTyping || isDropdownOpen || window.isDropdownActive || window.isUserEditing || isTTModalOpen || hasUnsavedTTChanges)) {
+            return;
+        }
+
+        if (showLoading) showLoader("جاري جلب بياناتك الإدارية...");
+        isFetchingProfile = true;
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getTeacherProfile", username: currentUsername })
+            });
+            const result = await response.json();
+
+            if (result.status === "success" && result.data) {
+                const t = result.data;
+                schoolNameText = t.schoolName || "غير مسند";
+                teacherFullName = t.fullName || currentUsername;
+                document.getElementById("schoolTitle").innerHTML = "<i class='fa-solid fa-school'></i> المدرسة: " + schoolNameText;
+                
+                const schoolPill = document.getElementById("welcomeSchoolPill");
+                if (schoolPill) schoolPill.textContent = "المؤسسة: " + schoolNameText;
+
+                document.getElementById("snapGrade").textContent = t.grade !== undefined && t.grade !== "" ? t.grade : "-";
+                document.getElementById("snapCategory").textContent = t.category || "-";
+                document.getElementById("snapScore").textContent = t.inspectionScore ? `${t.inspectionScore} / 20` : "-";
+                
+                teacherClass = t.assignedClass || "";
+                document.getElementById("snapClass").textContent = teacherClass || "-";
+
+                directorUsername = t.schoolDirectorUsername || "";
+                teacherScheduleType = t.scheduleType || "";
+                ttStatus = t.timetableStatus || "new";
+                ttRejectionReason = t.timetableRejectionReason || "";
+
+                if (!hasUnsavedTTChanges) {
+                    if (t.timetableJSON) {
+                        try { ttStorage = JSON.parse(t.timetableJSON); } catch(e) { ttStorage = {}; }
+                    } else {
+                        ttStorage = {};
+                    }
+                }
+
+                if (showLoading || !window.isUserEditing) {
+                    document.getElementById("fullName").value = t.fullName || "";
+                    document.getElementById("maidenName").value = t.maidenName || "";
+                    document.getElementById("birthInfo").value = t.birthInfo || "";
+                    document.getElementById("framework").value = t.framework || "";
+                    document.getElementById("framework").dispatchEvent(new Event('change'));
+                    autoSelectCategory();
+                    document.getElementById("grade").value = t.grade || "";
+                    document.getElementById("grade").dispatchEvent(new Event('change'));
+                    document.getElementById("effectiveDate").value = formatDateInput(t.effectiveDate);
+                    document.getElementById("inspectionScore").value = t.inspectionScore || "";
+                    document.getElementById("lastInspectionDate").value = formatDateInput(t.lastInspectionDate);
+                    document.getElementById("lastGuidanceVisitDate").value = formatDateInput(t.lastGuidanceVisitDate);
+                    document.getElementById("firstAppointmentDate").value = formatDateInput(t.firstAppointmentDate);
+                    document.getElementById("confirmationDate").value = formatDateInput(t.confirmationDate);
+                    document.getElementById("degreeSubject").value = t.degreeSubject || "";
+                    document.getElementById("assignedClass").value = t.assignedClass || "";
+                    document.getElementById("assignedClass").dispatchEvent(new Event('change'));
+                }
+
+                const status = t.status || "new";
+                const statusPill = document.getElementById("welcomeStatusPill");
+                const heroStatusContainer = document.getElementById("welcomeStatusContainer");
+
+                if (status === "pending") {
+                    updateStatusBanner("profile", "status-pending", "fa-clock-rotate-left", "بياناتك قيد المراجعة حالياً من طرف مدير المدرسة.");
+                    if(statusPill) statusPill.textContent = "الحالة: قيد المراجعة";
+                    if(heroStatusContainer) heroStatusContainer.className = "hero-stat-pill pill-pending";
+                } else if (status === "approved") {
+                    updateStatusBanner("profile", "status-approved", "fa-circle-check", "تم اعتماد بياناتك رسمياً من طرف الإدارة.");
+                    if(statusPill) statusPill.textContent = "الحالة: ملف معتمد";
+                    if(heroStatusContainer) heroStatusContainer.className = "hero-stat-pill pill-approved";
+                } else if (status === "rejected") {
+                    updateStatusBanner("profile", "status-rejected", "fa-circle-exclamation", "تم رفض البيانات من المدير، يرجى التعديل وإعادة الإرسال.");
+                    if(statusPill) statusPill.textContent = "الحالة: ملف بحاجة لتعديل";
+                    if(heroStatusContainer) heroStatusContainer.className = "hero-stat-pill pill-rejected";
+                } else {
+                    updateStatusBanner("profile", "none", "", "");
+                    if(statusPill) statusPill.textContent = "الحالة: حساب جديد";
+                    if(heroStatusContainer) heroStatusContainer.className = "hero-stat-pill pill-new";
+                }
+
+                const schedContainer = document.getElementById("welcomeScheduleContainer");
+                const schedPill = document.getElementById("welcomeSchedulePill");
+                if (teacherScheduleType === "single") {
+                    schedPill.textContent = "نظام الدوام الواحد";
+                    schedContainer.className = "hero-stat-pill pill-approved";
+                } else if (teacherScheduleType === "double1") {
+                    schedPill.textContent = "نظام الدوامين (الفوج 1)";
+                    schedContainer.className = "hero-stat-pill pill-approved";
+                } else if (teacherScheduleType === "double2") {
+                    schedPill.textContent = "نظام الدوامين (الفوج 2)";
+                    schedContainer.className = "hero-stat-pill pill-approved";
+                } else {
+                    schedPill.textContent = "الدوام: بانتظار التحديد";
+                    schedContainer.className = "hero-stat-pill pill-new";
+                }
+
+                const ttStatContainer = document.getElementById("welcomeTTStatusContainer");
+                const ttStatPill = document.getElementById("welcomeTTStatusPill");
+                
+                if (ttStatus === "approved_inspector") {
+                    ttStatPill.textContent = "الجدول: معتمد نهائياً";
+                    ttStatContainer.className = "hero-stat-pill pill-approved";
+                } else if (ttStatus === "pending_inspector" || ttStatus === "approved") {
+                    ttStatPill.textContent = "الجدول: قيد المفتش";
+                    ttStatContainer.className = "hero-stat-pill pill-pending";
+                } else if (ttStatus === "rejected_inspector" || ttStatus === "rejected_director" || ttStatus === "rejected") {
+                    ttStatPill.textContent = "الجدول: مرفوض";
+                    ttStatContainer.className = "hero-stat-pill pill-rejected";
+                } else if (ttStatus === "pending" || ttStatus === "pending_director") {
+                    ttStatPill.textContent = "الجدول: قيد المدير";
+                    ttStatContainer.className = "hero-stat-pill pill-pending";
+                } else {
+                    ttStatPill.textContent = "الجدول: جديد";
+                    ttStatContainer.className = "hero-stat-pill pill-new";
+                }
+
+                initCustomSelects();
+                setupTimetableUI();
+            }
+        } catch (error) {
+        } finally {
+            isFetchingProfile = false;
+            if (showLoading) hideLoader();
+        }
+    }
+
+    function updateStatusBanner(type, className, iconClass, text) {
+        let banner, icon, txt;
+        if(type === "profile") {
+            banner = document.getElementById("statusBanner");
+            icon = document.getElementById("statusIcon");
+            txt = document.getElementById("statusText");
+        } else if (type === "tt") {
+            banner = document.getElementById("ttStatusBanner");
+            icon = document.getElementById("ttStatusIcon");
+            txt = document.getElementById("ttStatusText");
+        } else {
+            return;
+        }
+        
+        banner.style.background = "";
+        banner.style.color = "";
+        banner.style.border = "";
+        
+        if (className === "none") {
+            banner.style.display = "none";
+            return;
+        }
+        banner.style.display = "flex";
+        banner.className = "status-banner " + className + " no-print";
+        icon.className = "fa-solid " + iconClass + " fa-lg";
+        txt.textContent = text;
+    }
+
+    function detectClassLevel() {
+        const c = document.getElementById("assignedClass").value;
+        if(c.includes("رابعة") || c.includes("خامسة")) return "L2";
+        return "L1"; 
+    }
+
+    function setupTimetableUI() {
+        const ttAlert = document.getElementById("ttAlert");
+        const ttBuilder = document.getElementById("ttBuilder");
+
+        if (!teacherScheduleType || teacherScheduleType === "") {
+            ttAlert.style.display = "flex";
+            ttBuilder.style.display = "none";
+            return;
+        }
+
+        ttAlert.style.display = "none";
+        ttBuilder.style.display = "block";
+
+        document.getElementById("sysSelect").value = teacherScheduleType;
+
+        const pTitle = document.getElementById("printTTTitle");
+        const pSub = document.getElementById("printTTSubTitle");
+        if(teacherClass) pTitle.textContent = "استعمال الزمن للقسم: " + teacherClass;
+        else pTitle.textContent = "استعمال الزمن";
+        pSub.textContent = "الأستاذ: " + teacherFullName + "  |  المدرسة: " + schoolNameText;
+
+        const reasonTxt = document.getElementById("ttRejectionReason");
+        if(reasonTxt) reasonTxt.style.display = "none";
+        
+        const printBtn = document.getElementById("printTTBtn");
+        const sendBtn = document.getElementById("sendTTBtn");
+        
+        if(printBtn) printBtn.disabled = true;
+
+        if (ttStatus === "approved_inspector") {
+            updateStatusBanner("tt", "status-approved", "fa-check-double", "تمت المصادقة النهائية على الجدول من طرف المفتش. يمكنك الآن طباعته.");
+            if(printBtn) printBtn.disabled = false;
+            if(sendBtn) sendBtn.style.display = "none";
+        } else if (ttStatus === "pending_inspector" || ttStatus === "approved") {
+            updateStatusBanner("tt", "status-pending", "fa-user-clock", "الجدول مقبول من المدير وهو قيد المعالجة من طرف المفتش.");
+            document.getElementById("ttStatusBanner").style.background = "#fef3c7";
+            document.getElementById("ttStatusBanner").style.color = "#b45309";
+            document.getElementById("ttStatusBanner").style.border = "1px solid #fde68a";
+            if(sendBtn) sendBtn.style.display = "none";
+        } else if (ttStatus === "rejected_inspector") {
+            updateStatusBanner("tt", "status-rejected", "fa-xmark-circle", "تم رفض الجدول من طرف المفتش، يرجى التعديل وإعادة الإرسال.");
+            if(reasonTxt) {
+                reasonTxt.textContent = "سبب الرفض:\n" + (ttRejectionReason || "لم يُذكر");
+                reasonTxt.style.display = "block";
+            }
+            if(sendBtn) {
+                sendBtn.style.display = "inline-flex";
+                sendBtn.disabled = false;
+            }
+        } else if (ttStatus === "pending" || ttStatus === "pending_director") {
+            updateStatusBanner("tt", "status-pending", "fa-clock", "الجدول قيد المراجعة من طرف مدير المدرسة.");
+            if(sendBtn) {
+                sendBtn.style.display = "inline-flex";
+                sendBtn.disabled = true;
+            }
+        } else if (ttStatus === "rejected" || ttStatus === "rejected_director") {
+            updateStatusBanner("tt", "status-rejected", "fa-xmark-circle", "تم رفض الجدول من طرف المدير، يرجى التعديل وإعادة الإرسال.");
+            if(reasonTxt) {
+                reasonTxt.textContent = "سبب الرفض:\n" + (ttRejectionReason || "لم يُذكر");
+                reasonTxt.style.display = "block";
+            }
+            if(sendBtn) {
+                sendBtn.style.display = "inline-flex";
+                sendBtn.disabled = false;
+            }
+        } else {
+            updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول جديد أو تم تعديله. لا تنسَ إرساله بعد الانتهاء.");
+            if(sendBtn) {
+                sendBtn.style.display = "inline-flex";
+                sendBtn.disabled = false;
+            }
+        }
+
+        updatePeriodOptions();
+        renderTT();
+    }
+
+    function updatePeriodOptions() {
+        const lvl = detectClassLevel();
+        const sys = document.getElementById('sysSelect').value;
+        const day = document.getElementById('daySelect').value;
+        
+        if(!CONFIG[lvl] || !CONFIG[lvl][sys]) return;
+        
+        const periods = CONFIG[lvl][sys](day).filter(p => p.id && !p.placeholder);
+        document.getElementById('periodSelect').innerHTML = periods.map(p => `<option value="${p.id}">من ${p.s} إلى ${p.e}</option>`).join('');
+    }
+
+    function renderTT() {
+        const lvl = detectClassLevel();
+        const sys = document.getElementById('sysSelect').value;
+        const root = document.getElementById('scheduleRoot');
+        root.innerHTML = "";
+
+        if(!CONFIG[lvl] || !CONFIG[lvl][sys]) return;
+
+        DAYS.forEach(day => {
+            const layout = CONFIG[lvl][sys](day);
+            const row = document.createElement('div');
+            row.className = 'flex w-full min-h-[115px] gap-2.5';
+
+            row.innerHTML = `
+                <div class="w-11 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-inner">
+                    <span class="vertical-text font-black text-base text-slate-700 tracking-widest">${day}</span>
+                </div>
+            `;
+
+            const area = document.createElement('div');
+            area.className = 'flex flex-grow gap-2.5';
+
+            layout.forEach(p => {
+                if(p.t) {
+                    const spacer = document.createElement('div');
+                    spacer.className = 'w-9 bg-slate-50 border border-slate-200 border-dashed rounded-xl flex items-center justify-center shrink-0 opacity-75';
+                    spacer.innerHTML = `<span class="vertical-text font-bold text-[11px] text-slate-400 tracking-wider">${p.t}</span>`;
+                    area.appendChild(spacer);
+                } else if(p.placeholder) {
+                    const emptyBlock = document.createElement('div');
+                    emptyBlock.className = 'border border-transparent no-print';
+                    emptyBlock.style.flex = p.f;
+                    area.appendChild(emptyBlock);
+                } else {
+                    const block = document.createElement('div');
+                    block.className = 'flex flex-col border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm';
+                    block.style.flex = p.f;
+                    
+                    block.innerHTML = `
+                        <div class="bg-slate-50 border-b border-slate-200 text-center font-bold text-xs py-1 text-slate-600 flex justify-center items-center gap-2" dir="rtl">
+                            <span>${p.s}</span>
+                            <i class="fa-solid fa-arrow-left text-slate-400 text-[10px]"></i>
+                            <span>${p.e}</span>
+                        </div>
+                    `;
+                    
+                    const content = document.createElement('div');
+                    content.className = 'flex flex-grow relative p-1 gap-1';
+
+                    const key = `${lvl}_${sys}_${day}_${p.id}`;
+                    const subs = ttStorage[key] || [];
+                    
+                    const [sH, sM] = p.s.split(':').map(Number);
+                    const [eH, eM] = p.e.split(':').map(Number);
+                    const totalM = (eH * 60 + eM) - (sH * 60 + sM);
+                    
+                    subs.forEach(s => {
+                        const unit = document.createElement('div');
+                        unit.className = 'subject-block flex flex-col justify-center items-center text-center p-1 text-white rounded-lg transition-all hover:brightness-105 shadow-sm';
+                        unit.style.width = (s.dur / totalM * 100) + "%";
+                        unit.style.backgroundColor = s.color;
+                        unit.innerHTML = `
+                            <div class="font-black text-xs leading-tight mb-1 drop-shadow-sm">${s.name}</div>
+                            <div class="text-[9px] bg-black/15 px-1.5 py-0.5 rounded font-bold">${s.dur}د</div>
+                        `;
+                        content.appendChild(unit);
+                    });
+                    
+                    block.appendChild(content);
+                    area.appendChild(block);
+                }
+            });
+            row.appendChild(area);
+            root.appendChild(row);
+        });
+    }
+
+    function openTTModal() { 
+        document.getElementById('ttModalOverlay').classList.add('active');
+        drawColors(); 
+        drawTTList(); 
+    }
+
+    function closeTTModal() { 
+        document.getElementById('ttModalOverlay').classList.remove('active');
+        renderTT(); 
+    }
+
+    function drawColors() {
+        document.getElementById('colorPick').innerHTML = COLORS.map(c => 
+            `<div onclick="activeColor='${c}';drawColors()" 
+                  class="w-7 h-7 rounded-full cursor-pointer transition-transform hover:scale-110 flex items-center justify-center shadow-sm" 
+                  style="background-color:${c}; border: ${activeColor === c ? '2px solid #0f172a' : '2px solid transparent'}">
+                  ${activeColor === c ? '<i class="fa-solid fa-check text-white text-[10px]"></i>' : ''}
+            </div>`
+        ).join('');
+    }
+
+    function drawTTList() {
+        const lvl = detectClassLevel();
+        const sys = document.getElementById('sysSelect').value;
+        const day = document.getElementById('daySelect').value;
+        const pId = document.getElementById('periodSelect').value;
+        
+        if(!CONFIG[lvl] || !CONFIG[lvl][sys]) return;
+
+        const layoutForDay = CONFIG[lvl][sys](day);
+        const p = layoutForDay.find(x => x.id === pId);
+        if(!p) return;
+
+        const key = `${lvl}_${sys}_${day}_${pId}`;
+        const subs = ttStorage[key] || [];
+        
+        const [sH, sM] = p.s.split(':').map(Number);
+        const [eH, eM] = p.e.split(':').map(Number);
+        const totalM = (eH * 60 + eM) - (sH * 60 + sM);
+        const remain = totalM - subs.reduce((sum, s) => sum + parseInt(s.dur), 0);
+        
+        const remainEl = document.getElementById('remainText');
+        remainEl.innerText = `الوقت المتاح في هذه الفترة: ${remain} دقيقة`;
+        
+        if(remain === 0) remainEl.className = "bg-rose-50 border border-rose-100 text-rose-600 px-4 py-3 rounded-xl text-center font-bold text-xs mb-5 flex items-center justify-center gap-2";
+        else remainEl.className = "bg-blue-50 border border-blue-100 text-blue-700 px-4 py-3 rounded-xl text-center font-bold text-xs mb-5 flex items-center justify-center gap-2";
+
+        document.getElementById('durInput').innerHTML = [15, 30, 45, 60, 90, 120]
+            .filter(d => d <= remain)
+            .map(d => `<option value="${d}">${d} دقيقة</option>`)
+            .join('');
+            
+        document.getElementById('modalList').innerHTML = subs.map((s, i) => `
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-slate-50 p-3 rounded-xl border border-slate-200/80 gap-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-3.5 h-3.5 rounded-full shrink-0" style="background-color: ${s.color}"></div>
+                    <span class="font-bold text-slate-700 text-sm">${s.name} <span class="text-xs text-slate-400">(${s.dur} د)</span></span>
+                </div>
+                <div class="flex gap-2 justify-end w-full sm:w-auto border-t sm:border-0 border-slate-200 pt-2 sm:pt-0">
+                    <button onclick="mvTT('${key}',${i},-1)" class="flex-1 sm:flex-none py-1.5 sm:w-8 sm:h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-blue-600 ${i === 0 ? 'invisible' : ''} flex items-center justify-center"><i class="fa-solid fa-chevron-up text-xs"></i></button>
+                    <button onclick="mvTT('${key}',${i},1)" class="flex-1 sm:flex-none py-1.5 sm:w-8 sm:h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-blue-600 ${i === subs.length-1 ? 'invisible' : ''} flex items-center justify-center"><i class="fa-solid fa-chevron-down text-xs"></i></button>
+                    <button onclick="rmTT('${key}',${i})" class="flex-1 sm:flex-none py-1.5 sm:w-8 sm:h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors flex items-center justify-center mr-auto sm:ml-1 sm:mr-0"><i class="fa-solid fa-trash text-xs"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addSubject() {
+        const name = document.getElementById('subInput').value.trim() || 'مادة';
+        const dur = document.getElementById('durInput').value;
+        if(!dur) return;
+        
+        hasUnsavedTTChanges = true; 
+        
+        const lvl = detectClassLevel();
+        const sys = document.getElementById('sysSelect').value;
+        const day = document.getElementById('daySelect').value;
+        const pId = document.getElementById('periodSelect').value;
+        const key = `${lvl}_${sys}_${day}_${pId}`;
+        
+        if(!ttStorage[key]) ttStorage[key] = [];
+        ttStorage[key].push({name, dur: parseInt(dur), color: activeColor});
+        
+        document.getElementById('subInput').value = '';
+        ttStatus = "new"; 
+        updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
+        document.getElementById("ttRejectionReason").style.display = "none";
+        
+        document.getElementById("sendTTBtn").style.display = "inline-flex";
+        document.getElementById("sendTTBtn").disabled = false;
+        document.getElementById("printTTBtn").disabled = true;
+        
+        drawTTList();
+    }
+
+    function rmTT(k, i) { 
+        hasUnsavedTTChanges = true; 
+        ttStorage[k].splice(i,1); 
+        ttStatus = "new";
+        updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
+        document.getElementById("ttRejectionReason").style.display = "none";
+        
+        document.getElementById("sendTTBtn").style.display = "inline-flex";
+        document.getElementById("sendTTBtn").disabled = false;
+        document.getElementById("printTTBtn").disabled = true;
+        
+        drawTTList(); 
+    }
+
+    function mvTT(k, i, d) {
+        hasUnsavedTTChanges = true; 
+        const a = ttStorage[k];
+        if(a[i+d]) { 
+            [a[i], a[i+d]] = [a[i+d], a[i]]; 
+            ttStatus = "new";
+            updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول تم تعديله ولم يُرسل بعد.");
+            document.getElementById("ttRejectionReason").style.display = "none";
+            
+            document.getElementById("sendTTBtn").style.display = "inline-flex";
+            document.getElementById("sendTTBtn").disabled = false;
+            document.getElementById("printTTBtn").disabled = true;
+            
+            drawTTList(); 
+        }
+    }
+    
+    function clearTTData() {
+        showModal("مسح الجدول", "هل أنت متأكد من مسح جميع حصص الجدول؟", function() {
+            ttStorage = {};
+            hasUnsavedTTChanges = true;
+            ttStatus = "new";
+            updateStatusBanner("tt", "status-new", "fa-info-circle", "الجدول فارغ ولم يُرسل بعد.");
+            document.getElementById("ttRejectionReason").style.display = "none";
+            
+            document.getElementById("sendTTBtn").style.display = "inline-flex";
+            document.getElementById("sendTTBtn").disabled = false;
+            document.getElementById("printTTBtn").disabled = true;
+            
+            renderTT();
+        }, "btn-danger");
+    }
+
+    function printTimetableAsImage() {
+        showLoader("جاري تجهيز الصورة للطباعة...");
+        
+        const captureArea = document.getElementById('ttCaptureArea');
+        const header = captureArea.querySelector('.print-header-tt');
+        const footer = captureArea.querySelector('.print-footer-tt');
+        const scrollWrapper = document.getElementById('ttScrollWrapper');
+        
+        if(header) header.style.display = 'block';
+        if(footer) footer.style.display = 'flex';
+        
+        const origWidth = captureArea.style.width;
+        const origPadding = captureArea.style.padding;
+        
+        let origOverflowClass = false;
+        if(scrollWrapper && scrollWrapper.classList.contains('overflow-x-auto')) {
+            scrollWrapper.classList.remove('overflow-x-auto');
+            scrollWrapper.style.overflowX = 'visible';
+            origOverflowClass = true;
+        }
+        
+        captureArea.style.width = '1250px'; 
+        captureArea.style.padding = '40px';
+        captureArea.style.backgroundColor = '#ffffff';
+        
+        htmlToImage.toPng(captureArea, { backgroundColor: '#ffffff', pixelRatio: 2 })
+            .then(function (dataUrl) {
+                if(header) header.style.display = 'none';
+                if(footer) footer.style.display = 'none';
+                captureArea.style.width = origWidth;
+                captureArea.style.padding = origPadding;
+                
+                if(origOverflowClass) {
+                    scrollWrapper.classList.add('overflow-x-auto');
+                    scrollWrapper.style.overflowX = '';
+                }
+                
+                hideLoader();
+                
+                if (window.innerWidth <= 1024) {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('l', 'mm', 'a4');
+                    const imgProps = pdf.getImageProperties(dataUrl);
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save('استعمال_الزمن.pdf');
+                } else {
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html dir="rtl">
+                            <head>
+                                <title>طباعة استعمال الزمن</title>
+                                <style>
+                                    @page { size: A4 landscape; margin: 0; }
+                                    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: white; min-height: 100vh; }
+                                    img { width: 100%; height: 100%; max-height: 100vh; object-fit: contain; }
+                                </style>
+                            </head>
+                            <body>
+                                <img src="${dataUrl}" onload="setTimeout(() => { window.print(); window.close(); }, 500);" />
+                            </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                }
+            })
+            .catch(function (error) {
+                if(header) header.style.display = 'none';
+                if(footer) footer.style.display = 'none';
+                captureArea.style.width = origWidth;
+                captureArea.style.padding = origPadding;
+                
+                if(origOverflowClass) {
+                    scrollWrapper.classList.add('overflow-x-auto');
+                    scrollWrapper.style.overflowX = '';
+                }
+                hideLoader();
+                alert("حدث خطأ أثناء التجهيز للطباعة.");
+            });
+    }
+
+    function confirmSubmitProfile(e) {
+        e.preventDefault();
+        showModal("إرسال البيانات", "هل أنت متأكد من إرسال هذه البيانات الإدارية للمراجعة والاعتماد؟", function() {
+            executeSubmitProfile();
+        }, "btn-submit");
+    }
+
+    async function executeSubmitProfile() {
+        const data = {
+            action: "submitTeacherProfile",
+            username: currentUsername,
+            fullName: document.getElementById("fullName").value.trim(),
+            maidenName: document.getElementById("maidenName").value.trim(),
+            birthInfo: document.getElementById("birthInfo").value.trim(),
+            framework: document.getElementById("framework").value,
+            category: document.getElementById("category").value,
+            grade: document.getElementById("grade").value,
+            effectiveDate: document.getElementById("effectiveDate").value,
+            inspectionScore: document.getElementById("inspectionScore").value.trim(),
+            lastInspectionDate: document.getElementById("lastInspectionDate").value,
+            lastGuidanceVisitDate: document.getElementById("lastGuidanceVisitDate").value,
+            firstAppointmentDate: document.getElementById("firstAppointmentDate").value,
+            confirmationDate: document.getElementById("confirmationDate").value,
+            degreeSubject: document.getElementById("degreeSubject").value.trim(),
+            assignedClass: document.getElementById("assignedClass").value
+        };
+
+        showLoader("جاري إرسال البيانات الإدارية...");
+        try {
+            const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+            const result = await response.json();
+            if (result.status === "success") {
+                window.isUserEditing = false; 
+                loadTeacherProfile(true);
+            }
+        } catch (error) {
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function submitTimetable() {
+        showModal("إرسال استعمال الزمن", "هل أنت متأكد من إرسال هذا الجدول للمدير للمصادقة عليه؟", async function() {
+            showLoader("جاري إرسال استعمال الزمن...");
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "submitTimetable",
+                        username: currentUsername,
+                        timetableJSON: JSON.stringify(ttStorage)
+                    })
+                });
+                const result = await response.json();
+                if (result.status === "success") {
+                    hasUnsavedTTChanges = false; 
+                    loadTeacherProfile(true); 
+                }
+            } catch (e) {
+            } finally {
+                hideLoader();
+            }
+        }, "btn-success");
+    }
+
+    async function loadTeacherChat(showLoading = false) {
+        if (!directorUsername) return;
+        const chatBox = document.getElementById("teacherChatBox");
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getMessages", user1: currentUsername, user2: directorUsername })
+            });
+            const result = await response.json();
+            
+            if (result.status === "success") {
+                const messages = result.messages || [];
+                if (messages.length === 0) {
+                    chatBox.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 100px; font-weight: 700;">لا توجد رسائل سابقة.</div>';
+                } else {
+                    const newHtml = messages.map(m => `
+                        <div class="chat-message ${m.sender === currentUsername ? 'sent' : 'received'}">
+                            <div>${m.text}</div>
+                        </div>
+                    `).join("");
+                    
+                    if (chatBox.innerHTML !== newHtml) {
+                        chatBox.innerHTML = newHtml;
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                }
+            }
+        } catch (e) {}
+    }
+
+    function handleChatKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendTeacherMessage();
+        }
+    }
+
+    async function sendTeacherMessage() {
+        if (!directorUsername) return;
+        const msgInput = document.getElementById("teacherChatMessage");
+        const text = msgInput.value.trim();
+        if (!text) return;
+
+        msgInput.value = "";
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "sendMessage", sender: currentUsername, receiver: directorUsername, message: text })
+            });
+            loadTeacherChat(false);
+        } catch (e) {}
+    }
+
+    async function checkNewMessages() {
+        if (!directorUsername) return;
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getMessages", user1: currentUsername, user2: directorUsername })
+            });
+            const result = await response.json();
+            if (result.status === "success" && result.messages) {
+                const count = result.messages.length;
+                const badge = document.getElementById("chatNotificationBadge");
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = "inline-block";
+                    } else {
+                        badge.style.display = "none";
+                    }
+                }
+            }
+        } catch (e) {}
+    }
+
+    function logout() {
+        localStorage.removeItem("userSession");
+        window.location.href = "index.html";
+    }
+</script>
+
+<script>
+    function initCustomSelects() {
+        const containers = document.querySelectorAll('.input-container');
+
+        containers.forEach(container => {
+            const select = container.querySelector('select:not(.native-table-select)'); 
+            const triggers = container.querySelectorAll('select.custom-select-trigger');
+            
+            if (triggers.length > 0) return; 
+            if (!select) return;
+
+            let customSelect = container.querySelector('.custom-select-ui');
+            let optionsList = container.querySelector('.custom-options-list');
+
+            if (!customSelect) {
+                customSelect = document.createElement('div');
+                customSelect.className = 'custom-select-ui';
+                container.appendChild(customSelect);
+            }
+
+            if (!optionsList) {
+                optionsList = document.createElement('div');
+                optionsList.className = 'custom-options-list';
+                container.appendChild(optionsList);
+            }
+
+            let selectedText = customSelect.querySelector('span');
+            if (!selectedText) {
+                selectedText = document.createElement('span');
+                customSelect.appendChild(selectedText);
+            }
+
+            const renderOptions = () => {
+                optionsList.innerHTML = '';
+                Array.from(select.options).forEach((option, index) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'custom-option';
+                    if (option.disabled || option.value === "") optDiv.classList.add('disabled');
+                    optDiv.textContent = option.text;
+                    
+                    optDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (option.disabled || option.value === "") return;
+                        
+                        window.isUserEditing = true;
+                        window.isDropdownActive = false;
+                        select.selectedIndex = index;
+                        selectedText.textContent = option.text;
+                        optionsList.classList.remove('show');
+                        customSelect.classList.remove('active');
+                        
+                        document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+                            if(g.style.zIndex === '999') g.style.zIndex = '';
+                        });
+                        
+                        select.dispatchEvent(new Event('change'));
+                    });
+                    optionsList.appendChild(optDiv);
+                });
+                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+            };
+
+            renderOptions();
+            if (select.disabled) container.classList.add('disabled');
+            else container.classList.remove('disabled');
+
+            if (!select._hasCustomObserver) {
+                const observer = new MutationObserver(() => {
+                    renderOptions();
+                    if (select.disabled) {
+                        container.classList.add('disabled');
+                    } else {
+                        container.classList.remove('disabled');
+                    }
+                });
+                observer.observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+                select._hasCustomObserver = true;
+            }
+
+            if (!customSelect._hasClickListener) {
+                customSelect.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (select.disabled) return;
+                    
+                    const isOpen = optionsList.classList.contains('show');
+                    
+                    document.querySelectorAll('.custom-options-list').forEach(l => l.classList.remove('show'));
+                    document.querySelectorAll('.custom-select-ui').forEach(c => c.classList.remove('active'));
+                    document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+                        if(g.style.zIndex === '999') g.style.zIndex = '';
+                    });
+                    
+                    if (!isOpen) {
+                        window.isDropdownActive = true;
+                        optionsList.classList.add('show');
+                        customSelect.classList.add('active');
+                        const group = container.closest('td') || container.closest('.form-group') || container;
+                        if (group) group.style.zIndex = '999';
+                    } else {
+                        window.isDropdownActive = false;
+                    }
+                });
+                customSelect._hasClickListener = true;
+            }
+
+            select.addEventListener('change', () => {
+                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initCustomSelects();
+    });
+
+    document.addEventListener('click', () => {
+        window.isDropdownActive = false;
+        document.querySelectorAll('.custom-options-list').forEach(l => l.classList.remove('show'));
+        document.querySelectorAll('.custom-select-ui').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.form-group, .input-container, td').forEach(g => {
+            if(g.style.zIndex === '999') g.style.zIndex = '';
+        });
+    });
+</script>
+</body>
+</html>
