@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تسجيل الدخول - النظام الرقمي لمتابعة الوضعية الإدارية للأساتذة</title>
+    
+    <link rel="icon" type="image/png" href="image.png">
+    <link rel="apple-touch-icon" href="image.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #e2e8f0;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --border-color: #cbd5e1;
+            
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            
+            --emerald-bg: #dcfce7;
+            --emerald-text: #15803d;
+            --emerald-border: #86efac;
+            
+            --amber-bg: #fef3c7;
+            --amber-text: #b45309;
+            --amber-border: #fcd34d;
+            
+            --indigo-bg: #e0e7ff;
+            --indigo-text: #4338ca;
+            --indigo-border: #a5b4fc;
+            
+            --danger-bg: #fee2e2;
+            --danger-text: #dc2626;
+            --danger-border: #fca5a5;
+            
+            --text-main: #1e293b;
+            --text-sub: #475569;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        body {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .split-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .form-side {
+            width: 45%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 50px;
+            background: #e2e8f0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-card);
+            padding: 34px 28px 24px;
+            border-radius: 22px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.25s ease-in-out forwards;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .mobile-intro-banner {
+            display: none;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .mobile-intro-banner h2 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .mobile-intro-banner p {
+            font-size: 12.5px;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .mobile-roles {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag-teacher {
+            background: var(--emerald-bg);
+            color: var(--emerald-text);
+            border: 1px solid var(--emerald-border);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .tag-director {
+            background: var(--amber-bg);
+            color: var(--amber-text);
+            border: 1px solid var(--amber-border);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .tag-inspector {
+            background: var(--indigo-bg);
+            color: var(--indigo-text);
+            border: 1px solid var(--indigo-border);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #e0f2fe;
+            color: var(--primary);
+            font-size: 12.5px;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid #bae6fd;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-size: 21px;
+            font-weight: 900;
+            line-height: 1.5;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .lede {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+        }
+
+        .form-group label i {
+            color: var(--primary);
+            font-size: 13px;
+        }
+
+        .input-container {
+            position: relative;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-input);
+            transition: all 0.25s ease;
+        }
+
+        .form-group:focus-within .input-container {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+            pointer-events: none;
+            transition: color 0.25s ease;
+        }
+
+        .form-group:focus-within .input-icon {
+            color: var(--primary);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 13px 16px 13px 42px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .form-group select {
+            padding: 13px 16px;
+            cursor: pointer;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 14.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            transition: all 0.25s ease;
+            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.25);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(2, 132, 199, 0.35);
+        }
+
+        .btn-submit:disabled {
+            background: #cbd5e1;
+            border: 1px solid #94a3b8;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .btn-register-link {
+            width: 100%;
+            background: #ecfdf5;
+            color: #047857;
+            border: 1.5px solid #a7f3d0;
+            padding: 11px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+        .btn-register-link:hover {
+            background: #d1fae5;
+            border-color: #34d399;
+        }
+
+        .btn-forgot-link {
+            background: transparent;
+            color: #64748b;
+            border: none;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .btn-forgot-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .btn-back {
+            width: 100%;
+            background: transparent;
+            color: var(--text-sub);
+            border: 1.5px solid var(--border-color);
+            padding: 11px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+            transition: all 0.25s ease;
+        }
+        .btn-back:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .inline-alert {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.5;
+        }
+        .inline-alert.error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+        .inline-alert.success {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .desktop-footer {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .desktop-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .presentation-side {
+            width: 55%;
+            position: relative;
+            background: #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 40px;
+            border-right: 1px solid #475569;
+        }
+
+        .orbit-wrap {
+            position: relative;
+            width: 270px;
+            height: 270px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 34px;
+        }
+        .orbit-track { position: absolute; inset: 0; border: 1px dashed rgba(255, 255, 255, 0.25); border-radius: 50%; }
+        .orbit-ring { position: absolute; inset: 0; animation: spin 30s linear infinite; }
+        .satellite { position: absolute; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); }
+        .satellite.s1 { top: -25px; left: calc(50% - 25px); background: #ffffff; border: 1.5px solid var(--emerald-text); color: var(--emerald-text); animation: counterSpin 30s linear infinite; }
+        .satellite.s2 { bottom: 20px; left: 10px; background: #ffffff; border: 1.5px solid var(--amber-text); color: var(--amber-text); animation: counterSpin 30s linear infinite; }
+        .satellite.s3 { bottom: 20px; right: 10px; background: #ffffff; border: 1.5px solid var(--indigo-text); color: var(--indigo-text); animation: counterSpin 30s linear infinite; }
+        .orbit-hub { position: relative; z-index: 2; width: 90px; height: 90px; border-radius: 50%; background: #ffffff; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(255, 255, 255, 0.2); }
+        .orbit-hub i { font-size: 32px; color: var(--primary); }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes counterSpin { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+        .presentation-content { text-align: center; max-width: 460px; z-index: 2; }
+        .presentation-content h2 { font-size: 24px; font-weight: 900; color: #ffffff; margin-bottom: 12px; line-height: 1.4; }
+        .presentation-content p { font-size: 14px; color: #cbd5e1; line-height: 1.7; }
+        .role-strip { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
+        .role-badge { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; }
+
+        .pulse-overlay {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            opacity: 0.95;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            display: none;
+        }
+
+        .pulse-overlay.active {
+            display: flex;
+        }
+
+        .drop-pulse-wrapper { position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .drop-pulse-ring { position: absolute; inset: 0; border-radius: 50%; background: var(--primary); opacity: 0.25; animation: ripple 1.6s cubic-bezier(0, 0.2, 0.8, 1) infinite; }
+        .drop-pulse-ring:nth-child(2) { animation-delay: 0.5s; }
+        .drop-icon-center { width: 48px; height: 48px; background: #ffffff; border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2; box-shadow: 0 0 20px rgba(2, 132, 199, 0.2); }
+        .drop-icon-center i { font-size: 20px; color: var(--primary); }
+        @keyframes ripple { 0% { transform: scale(0.6); opacity: 0.6; } 100% { transform: scale(1.7); opacity: 0; } }
+        .pulse-text { margin-top: 18px; font-size: 14px; font-weight: 700; color: var(--text-main); }
+
+        .bottom-nav {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff;
+            border-top: 1px solid var(--border-color); padding: 8px 16px; z-index: 90;
+            justify-content: space-around; align-items: center; box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub); text-decoration: none; font-size: 11px; font-weight: 700; transition: color 0.2s ease; cursor: pointer; }
+        .nav-item.active, .nav-item:hover { color: var(--primary); }
+        .nav-item i { font-size: 16px; }
+
+        @media (max-width: 900px) {
+            .split-layout { flex-direction: column; padding-bottom: 70px; }
+            .presentation-side { display: none; }
+            .form-side { width: 100%; min-height: 100vh; padding: 18px 14px; align-items: flex-start; background: var(--bg-body); }
+            .form-card { max-width: 100%; background: #ffffff; border: 1px solid var(--border-color); padding: 24px 18px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
+            .mobile-intro-banner { display: block; }
+            .desktop-footer { display: none; }
+            .bottom-nav { display: flex; }
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div class="pulse-overlay" id="loadingPulse">
+        <div class="drop-pulse-wrapper">
+            <div class="drop-pulse-ring"></div>
+            <div class="drop-pulse-ring"></div>
+            <div class="drop-icon-center">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+        </div>
+        <div class="pulse-text" id="pulseStatusText">جاري التحقق من بيانات الدخول...</div>
+    </div>
+
+    <div class="split-layout">
+
+        <div class="form-side">
+            <div class="form-card">
+                
+                <div class="mobile-intro-banner">
+                    <h2>النظام الرقمي لمتابعة الوضعية الإدارية للأساتذة</h2>
+                    <p>بوابة تسجيل الدخول والولوج الآمن لجميع الرتب والفئات الإدارية والتربوية.</p>
+                    <div class="mobile-roles">
+                        <span class="tag-teacher"><i class="fa-solid fa-chalkboard-user"></i> الأساتذة</span>
+                        <span class="tag-director"><i class="fa-solid fa-user-tie"></i> المديرون</span>
+                        <span class="tag-inspector"><i class="fa-solid fa-magnifying-glass"></i> المفتشون</span>
+                    </div>
+                </div>
+
+                
+                <div id="loginView" class="view-section active">
+                    <div class="badge"><i class="fa-solid fa-user-shield"></i> الوصول الآمن</div>
+                    <h1 id="districtTitle">جاري جلب اسم المقاطعة...</h1>
+                    <p class="lede">يرجى إدخال اسم المستخدم وكلمة المرور الخاصة بك للمتابعة.</p>
+
+                    <div id="loginAlert" class="inline-alert error"></div>
+
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label for="username"><i class="fa-solid fa-user"></i> اسم المستخدم</label>
+                            <div class="input-container">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="username" placeholder="أدخل اسم المستخدم" required autocomplete="username">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label for="password" style="margin: 0;"><i class="fa-solid fa-lock"></i> كلمة المرور</label>
+                                <button type="button" class="btn-forgot-link" onclick="switchView('forgotView')">نسيت كلمة المرور؟</button>
+                            </div>
+                            <div class="input-container">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="password" placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn-submit">
+                            <span>تسجيل الدخول</span>
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+
+                        <div class="links-group">
+                            <button type="button" class="btn-register-link" onclick="switchView('registerView')">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <span>إذا كنت أستاذاً ولا تملك حساباً، سجل الآن</span>
+                            </button>
+
+                            <button type="button" class="btn-back" onclick="goBackHome()">
+                                <i class="fa-solid fa-arrow-right"></i>
+                                <span>العودة لاختيار المقاطعة</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                
+                <div id="registerView" class="view-section">
+                    <div class="badge" style="background:#ecfdf5; color:#047857; border-color:#a7f3d0;">
+                        <i class="fa-solid fa-user-plus"></i> تسجيل أستاذ جديد
+                    </div>
+                    <h1>إنشاء حساب أستاذ</h1>
+                    <p class="lede">اختر مدرستك واملأ بياناتك لإنشاء الحساب وتفعيله من المدير.</p>
+
+                    <div id="registerAlert" class="inline-alert"></div>
+
+                    <form id="registerForm" onsubmit="handleRegisterTeacher(event)">
+                        <div class="form-group">
+                            <label for="regSchoolSelect"><i class="fa-solid fa-school"></i> المؤسسة / المدرسة</label>
+                            <div class="input-container">
+                                <select id="regSchoolSelect" required>
+                                    <option value="">-- جاري تحميل المدارس... --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regFullName"><i class="fa-solid fa-id-card"></i> الاسم واللقب الكامل</label>
+                            <div class="input-container">
+                                <i class="fa-solid fa-id-card input-icon"></i>
+                                <input type="text" id="regFullName" placeholder="عقيل زهير" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regUsername"><i class="fa-solid fa-user"></i> اسم المستخدم (للدخول)</label>
+                            <div class="input-container">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="regUsername" placeholder="مثال: زهير زهير" required autocomplete="username">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regPassword"><i class="fa-solid fa-lock"></i> كلمة المرور الخاصة بك</label>
+                            <div class="input-container">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="regPassword" placeholder="أنشئ كلمة مرور قوية" required autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="regSubmitBtn" class="btn-submit" style="background:#059669;">
+                            <span>تسجيل الحساب</span>
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+
+                        <button type="button" class="btn-back" onclick="switchView('loginView')">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>العودة لتسجيل الدخول</span>
+                        </button>
+                    </form>
+                </div>
+
+                
+                <div id="forgotView" class="view-section">
+                    <div class="badge" style="background:#fef3c7; color:#b45309; border-color:#fcd34d;">
+                        <i class="fa-solid fa-key"></i> استرجاع الحساب
+                    </div>
+                    <h1>طلب تغيير كلمة المرور</h1>
+                    <p class="lede">حدد مدرستك واسم المستخدم لطلب تعيين كلمة مرور جديدة من طرف المدير.</p>
+
+                    <div id="forgotAlert" class="inline-alert"></div>
+
+                    <form id="forgotForm" onsubmit="handleForgotPasswordRequest(event)">
+                        <div class="form-group">
+                            <label for="forgotSchoolSelect"><i class="fa-solid fa-school"></i> المؤسسة / المدرسة</label>
+                            <div class="input-container">
+                                <select id="forgotSchoolSelect" required>
+                                    <option value="">-- جاري تحميل المدارس... --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="forgotUsername"><i class="fa-solid fa-user"></i> اسم المستخدم الخاص بك</label>
+                            <div class="input-container">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="forgotUsername" placeholder="أدخل اسم المستخدم" required autocomplete="username">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="forgotNewPassword"><i class="fa-solid fa-lock"></i> كلمة المرور الجديدة المطلوبة</label>
+                            <div class="input-container">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="forgotNewPassword" placeholder="أدخل كلمة المرور الجديدة" required autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="forgotSubmitBtn" class="btn-submit" style="background:#d97706;">
+                            <span>إرسال طلب التغيير</span>
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+
+                        <button type="button" class="btn-back" onclick="switchView('loginView')">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>العودة لتسجيل الدخول</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="desktop-footer" id="footerText">
+                    هل تواجه مشكلة في تسجيل الدخول؟
+                    <br>
+                    <a href="mailto:zoheir.akil.dev@hotmail.com">
+                        <i class="fa-solid fa-envelope"></i> zoheir.akil.dev@hotmail.com
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="presentation-side">
+            <div class="orbit-wrap">
+                <div class="orbit-track"></div>
+                <div class="orbit-ring">
+                    <div class="satellite s1" title="فضاء الأستاذ"><i class="fa-solid fa-chalkboard-user"></i></div>
+                    <div class="satellite s2" title="فضاء المدير"><i class="fa-solid fa-user-tie"></i></div>
+                    <div class="satellite s3" title="فضاء المفتش"><i class="fa-solid fa-magnifying-glass"></i></div>
+                </div>
+                <div class="orbit-hub">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+
+            <div class="presentation-content">
+                <h2>النظام الرقمي لمتابعة الوضعية الإدارية للأساتذة</h2>
+                <p>منظومة رقمية متكاملة تتيح للأساتذة، المديرين، والمفتشين متابعة وإدارة الوضعية الإدارية والمسار المهني بمرونة وسهولة فائقة.</p>
+                <div class="role-strip">
+                    <span class="role-badge tag-teacher"><i class="fa-solid fa-chalkboard-user"></i> الأساتذة</span>
+                    <span class="role-badge tag-director"><i class="fa-solid fa-user-tie"></i> المديرون</span>
+                    <span class="role-badge tag-inspector"><i class="fa-solid fa-magnifying-glass"></i> المفتشون</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="goBackHome()">
+            <i class="fa-solid fa-arrow-right"></i>
+            <span>العودة</span>
+        </div>
+        <div class="nav-item active" onclick="switchView('loginView')">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>الدخول</span>
+        </div>
+        <a href="mailto:zoheir.akil.dev@hotmail.com" class="nav-item">
+            <i class="fa-solid fa-circle-question"></i>
+            <span>المساعدة</span>
+        </a>
+    </nav>
+
+    <script>
+        const MAIN_PORTAL_URL = "https://script.google.com/macros/s/AKfycbxpMWiDgT8pgT_jkdDmP9mwfLZD1Wkaz63jWZAxy8iyk5maJNZCzZnQp3eS4jPEBIjshQ/exec";
+
+        const districtName = localStorage.getItem("currentDistrictName");
+        let targetScriptUrl = localStorage.getItem("currentScriptUrl") || "";
+        let cachedSchools = null;
+
+        const loadingPulse = document.getElementById('loadingPulse');
+        const pulseStatusText = document.getElementById('pulseStatusText');
+
+        function showLoader(text = "جاري التحقق من بيانات الدخول...") {
+            pulseStatusText.textContent = text;
+            loadingPulse.classList.add('active');
+        }
+
+        function hideLoader() {
+            loadingPulse.classList.remove('active');
+        }
+
+        if (!districtName) {
+            window.location.href = "index.html";
+        }
+
+        document.getElementById('districtTitle').textContent = districtName;
+
+        function goBackHome() {
+            window.location.href = "index.html";
+        }
+
+        function showAlert(elementId, message, type = 'error') {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.className = `inline-alert ${type}`;
+            el.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span>${message}</span>`;
+            el.style.display = 'flex';
+        }
+
+        function hideAlert(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) el.style.display = 'none';
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            const target = document.getElementById(viewId);
+            if (target) target.classList.add('active');
+
+            hideAlert('loginAlert');
+            hideAlert('registerAlert');
+            hideAlert('forgotAlert');
+
+            if (viewId === 'registerView' || viewId === 'forgotView') {
+                populateSchoolsInSelects();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function loadDistrictUrl() {
+            try {
+                const response = await fetch(`${MAIN_PORTAL_URL}?action=getScriptUrl&district=${encodeURIComponent(districtName)}`);
+                const result = await response.json();
+
+                if (result.status === "success" && result.scriptUrl) {
+                    targetScriptUrl = result.scriptUrl;
+                    localStorage.setItem("currentScriptUrl", targetScriptUrl);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!targetScriptUrl) {
+                loadDistrictUrl();
+            }
+        });
+
+        async function fetchDistrictSchools() {
+            if (cachedSchools && cachedSchools.length > 0) return cachedSchools;
+            try {
+                const response = await fetch(targetScriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "getSchoolsList" })
+                });
+                const result = await response.json();
+                if (result.status === "success" && result.schools) {
+                    cachedSchools = result.schools;
+                    return cachedSchools;
+                }
+            } catch (e) {}
+            return [];
+        }
+
+        async function populateSchoolsInSelects() {
+            if (!targetScriptUrl) {
+                showLoader("جاري الاتصال بالخادم...");
+                await loadDistrictUrl();
+                targetScriptUrl = localStorage.getItem("currentScriptUrl");
+                hideLoader();
+            }
+            const schools = await fetchDistrictSchools();
+            const regSelect = document.getElementById('regSchoolSelect');
+            const forgotSelect = document.getElementById('forgotSchoolSelect');
+
+            const optionsHtml = schools.length > 0 
+                ? '<option value="">-- اختر مدرستك --</option>' + schools.map(s => `<option value="${s.id}">${s.name}</option>`).join('')
+                : '<option value="">لا توجد مدارس مسجلة</option>';
+
+            if (regSelect) regSelect.innerHTML = optionsHtml;
+            if (forgotSelect) forgotSelect.innerHTML = optionsHtml;
+        }
+
+        // تسجيل أستاذ جديد
+        async function handleRegisterTeacher(e) {
+            e.preventDefault();
+            hideAlert('registerAlert');
+
+            const schoolId = document.getElementById('regSchoolSelect').value;
+            const fullName = document.getElementById('regFullName').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+
+            if (!schoolId || !fullName || !username || !password) {
+                return showAlert('registerAlert', "يرجى ملء كافة الحقول المطلوبة.");
+            }
+
+            const btn = document.getElementById('regSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>جاري التسجيل...</span><i class="fa-solid fa-spinner fa-spin"></i>';
+            showLoader("جاري إنشاء الحساب...");
+
+            try {
+                const response = await fetch(targetScriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "registerTeacherSelf", schoolId, fullName, username, password })
+                });
+                const result = await response.json();
+                hideLoader();
+
+                if (result.status === "success") {
+                    showAlert('registerAlert', "تم تسجيل حسابك بنجاح! حسابك بانتظار التفعيل من طرف مدير المدرسة للتمكن من الدخول.", 'success');
+                    document.getElementById('registerForm').reset();
+                    setTimeout(() => { switchView('loginView'); }, 3500);
+                } else {
+                    showAlert('registerAlert', result.message || "تعذر إتمام التسجيل.");
+                }
+            } catch (err) {
+                hideLoader();
+                showAlert('registerAlert', "حدث خطأ في الاتصال بالخادم.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>تسجيل الحساب</span><i class="fa-solid fa-check"></i>';
+            }
+        }
+
+        // طلب تغيير كلمة المرور
+        async function handleForgotPasswordRequest(e) {
+            e.preventDefault();
+            hideAlert('forgotAlert');
+
+            const schoolId = document.getElementById('forgotSchoolSelect').value;
+            const username = document.getElementById('forgotUsername').value.trim();
+            const newPassword = document.getElementById('forgotNewPassword').value.trim();
+
+            if (!schoolId || !username || !newPassword) {
+                return showAlert('forgotAlert', "يرجى ملء كافة الحقول.");
+            }
+
+            const btn = document.getElementById('forgotSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>جاري الإرسال...</span><i class="fa-solid fa-spinner fa-spin"></i>';
+            showLoader("جاري إرسال الطلب للمدير...");
+
+            try {
+                const response = await fetch(targetScriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "requestPasswordReset", schoolId, username, newPassword })
+                });
+                const result = await response.json();
+                hideLoader();
+
+                if (result.status === "success") {
+                    showAlert('forgotAlert', result.message || "تم إرسال الطلب بنجاح وهو بانتظار موافقة مدير مدرستك.", 'success');
+                    document.getElementById('forgotForm').reset();
+                    setTimeout(() => { switchView('loginView'); }, 3500);
+                } else {
+                    showAlert('forgotAlert', result.message || "تعذر إرسال الطلب.");
+                }
+            } catch (err) {
+                hideLoader();
+                showAlert('forgotAlert', "حدث خطأ في الاتصال بالخادم.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>إرسال طلب التغيير</span><i class="fa-solid fa-paper-plane"></i>';
+            }
+        }
+
+        // تسجيل الدخول
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideAlert('loginAlert');
+
+            if (!targetScriptUrl) {
+                showLoader("جاري الاتصال بالخادم...");
+                await loadDistrictUrl();
+                targetScriptUrl = localStorage.getItem("currentScriptUrl");
+            }
+            if (!targetScriptUrl) {
+                hideLoader();
+                return showAlert('loginAlert', "تعذر جلب رابط المقاطعة، يرجى المحاولة مرة أخرى.");
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>جاري التحقق...</span><i class="fa-solid fa-spinner fa-spin"></i>';
+            showLoader("جاري التحقق من صحة البيانات والولوج...");
+
+            const data = {
+                action: "login",
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value.trim()
+            };
+
+            try {
+                const response = await fetch(targetScriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    const cleanRole = (result.user.role || "").toString().trim().toLowerCase();
+                    result.user.role = cleanRole;
+                    localStorage.setItem("userSession", JSON.stringify(result.user));
+                    
+                    if (cleanRole === "admin") window.location.href = "dashboard-admin.html";
+                    else if (cleanRole === "director") window.location.href = "dashboard-director.html";
+                    else if (cleanRole === "inspector") window.location.href = "dashboard-inspector.html";
+                    else if (cleanRole === "teacher") window.location.href = "dashboard-teacher.html";
+                    else {
+                        showAlert('loginAlert', "تم الدخول، لكن الصلاحية غير معروفة: " + cleanRole);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<span>تسجيل الدخول</span><i class="fa-solid fa-arrow-left"></i>';
+                        hideLoader();
+                    }
+                } else {
+                    showAlert('loginAlert', result.message || "اسم المستخدم أو كلمة المرور غير صحيحة.");
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>تسجيل الدخول</span><i class="fa-solid fa-arrow-left"></i>';
+                    hideLoader();
+                }
+            } catch (error) {
+                showAlert('loginAlert', "حدث خطأ أثناء إرسال بيانات الدخول إلى الخادم.");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>تسجيل الدخول</span><i class="fa-solid fa-arrow-left"></i>';
+                hideLoader();
+            }
+        }
+    </script>
+</body>
+</html>
